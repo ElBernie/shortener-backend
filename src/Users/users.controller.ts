@@ -8,7 +8,7 @@ export default class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/me')
-  async getCurrentUser(@Req() request) {
+  async getCurrentUser(@Req() request: any) {
     const { userId } = request.user;
     const userData = await this.usersService.getUser(userId);
     return userData;
