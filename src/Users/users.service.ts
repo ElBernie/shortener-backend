@@ -13,8 +13,9 @@ export default class UsersService {
     });
 
     if (!user) throw new NotFoundException();
+    delete user.email;
+    delete user.password;
 
-    const { email, password, ...userData } = user;
-    return userData;
+    return user;
   }
 }
