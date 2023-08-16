@@ -7,7 +7,7 @@ import {
 import { PrismaService } from 'src/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { JwtPayload } from 'src/Auth/JWT.strategy';
-
+import * as nanoid from 'nanoid';
 @Injectable()
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
@@ -35,9 +35,16 @@ export default class LinksService {
   }) {
     const URLData = new URL(linkData.url);
 
+    const alias =
+      linkData.alias ||
+      nanoid.customAlphabet(
+        process.env.URL_ALIAS_ALPHABET ||
+          '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz',
+      )(Number(process.env.URL_ALIAS_LENGTH) || 7);
+
     return this.prismaService.links.create({
       data: {
-        alias: 'monalias2',
+        alias: alias,
         ...(user.userId && {
           user: {
             connect: {
