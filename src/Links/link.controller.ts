@@ -17,6 +17,7 @@ import { Request as RequestType } from 'src/types';
 @Controller('links')
 export default class LinksController {
   constructor(private linksService: LinksService) {}
+
   @Get('/:alias')
   getLink(@Param('alias') alias: string) {
     return this.linksService.getLinkByAlias(alias);

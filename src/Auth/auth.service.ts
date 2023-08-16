@@ -15,6 +15,7 @@ export default class AuthService {
     private prismaService: PrismaService,
     private jwtService: JwtService,
   ) {}
+
   register(userData: RegisterDTO) {
     return this.prismaService.user.create({
       data: {

@@ -30,6 +30,7 @@ export default class LinksService {
     user: JwtPayload;
   }) {
     const URLData = new URL(linkData.url);
+
     return this.prismaService.links.create({
       data: {
         alias: 'monalias2',
