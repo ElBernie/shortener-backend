@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
+import { JwtPayload } from 'src/Auth/JWT.strategy';
 
 @Injectable()
 export default class LinksService {
@@ -17,18 +18,31 @@ export default class LinksService {
     });
   }
 
-  createUrl(creationData: LinkCreationDTO) {
-    const URLData = new URL(creationData.url);
+  createUrl({
+    linkData,
+    user,
+  }: {
+    linkData: LinkCreationDTO;
+    user: JwtPayload;
+  }) {
+    const URLData = new URL(linkData.url);
     return this.prismaService.links.create({
       data: {
-        alias: 'monalias',
+        alias: 'monalias2',
+        ...(user.userId && {
+          user: {
+            connect: {
+              id: user.userId,
+            },
+          },
+        }),
         URL: {
           connectOrCreate: {
             where: {
-              url: creationData.url,
+              url: linkData.url,
             },
             create: {
-              url: creationData.url,
+              url: linkData.url,
               protocol: URLData.protocol,
               pathname: URLData.pathname,
               search: URLData.search,
