@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { JwtPayload } from 'src/Auth/JWT.strategy';
@@ -70,6 +74,24 @@ export default class LinksService {
             },
           },
         },
+      },
+    });
+  }
+
+  async deleteUrl({ alias, user }: { alias: string; user: JwtPayload }) {
+    const { userId } = user;
+    if (!userId) throw new UnauthorizedException();
+
+    const link = await this.prismaService.links.findUnique({
+      where: { alias: alias },
+    });
+    if (!link) throw new NotFoundException();
+    if (link.userId != userId || link.userId == null)
+      throw new UnauthorizedException();
+
+    return this.prismaService.links.delete({
+      where: {
+        id: link.id,
       },
     });
   }
