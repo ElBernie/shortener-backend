@@ -12,8 +12,8 @@ import { JwtPayload } from 'src/Auth/JWT.strategy';
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
 
-  getLinkByAlias(alias: string) {
-    return this.prismaService.links.findUnique({
+  async getLinkByAlias(alias: string) {
+    const link = await this.prismaService.links.findUnique({
       where: {
         alias: alias,
       },
@@ -21,6 +21,9 @@ export default class LinksService {
         URL: true,
       },
     });
+    if (!link) throw new NotFoundException();
+
+    return link;
   }
 
   createUrl({
