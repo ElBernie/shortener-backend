@@ -20,11 +20,42 @@ model User {
 }
 
 model Links {
-  id        String   @id @default(uuid())
-  alias     String   @unique
-  url       String
+  id    String @id @default(uuid())
+  alias String @unique
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   userId    String?
   user      User?    @relation(fields: [userId], references: [id])
+
+  URL    URL     @relation(fields: [URLId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  URLId  String
+  Domain Domain? @relation(fields: [host], references: [host], onDelete: SetNull, onUpdate: Cascade)
+  host   String?
+}
+
+model URL {
+  id  String @id @default(uuid())
+  url String @unique
+
+  Links    Links[]
+  Domain   Domain? @relation(fields: [host], references: [host], onDelete: SetNull, onUpdate: Cascade)
+  host     String?
+  protocol String? @default("https")
+  pathname String?
+  search   String?
+  hash     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Domain {
+  host          String   @id @unique
+  banned        Boolean  @default(false)
+  ageRestricted Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  links         Links[]
+  URL           URL[]
 }
