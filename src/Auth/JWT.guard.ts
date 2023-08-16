@@ -24,9 +24,9 @@ export default class JwtAuthGuard extends AuthGuard('jwt') {
       if (requestHeaders.authorization) {
         return super.canActivate(context);
       }
-
       return true;
     }
+
     return super.canActivate(context);
   }
 }

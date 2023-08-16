@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -16,6 +17,7 @@ import { Request as RequestType } from 'src/types';
 @Controller('links')
 export default class LinksController {
   constructor(private linksService: LinksService) {}
+
   @Get('/:alias')
   getLink(@Param('alias') alias: string) {
     return this.linksService.getLinkByAlias(alias);
@@ -30,6 +32,15 @@ export default class LinksController {
   ) {
     return this.linksService.createUrl({
       linkData: linkCreationData,
+      user: req.user,
+    });
+  }
+
+  @Delete('/:alias')
+  @UseGuards(JwtAuthGuard)
+  deleteLink(@Request() req: RequestType, @Param('alias') alias: string) {
+    return this.linksService.deleteUrl({
+      alias,
       user: req.user,
     });
   }

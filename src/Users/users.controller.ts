@@ -11,6 +11,7 @@ export default class UsersController {
   async getCurrentUser(@Req() request: any) {
     const { userId } = request.user;
     const userData = await this.usersService.getUser(userId);
+
     return userData;
   }
 }
