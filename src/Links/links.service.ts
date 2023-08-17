@@ -4,10 +4,11 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/Prisma/prisma.service';
+import { PrismaService } from '../Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { JwtPayload } from 'src/Auth/JWT.strategy';
 import * as nanoid from 'nanoid';
+
 @Injectable()
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
@@ -86,6 +87,9 @@ export default class LinksService {
             },
           },
         },
+      },
+      include: {
+        URL: true,
       },
     });
   }
