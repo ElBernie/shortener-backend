@@ -4,7 +4,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { JwtPayload } from 'src/Auth/JWT.strategy';
 import * as nanoid from 'nanoid';

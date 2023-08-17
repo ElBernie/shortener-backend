@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { PrismaService } from 'src/prisma.service';
+import { PrismaService } from 'src/Prisma/prisma.service';
 import { RegisterDTO } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
 import LoginDTO from './DTO/login.dto';
