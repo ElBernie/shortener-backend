@@ -1,10 +1,11 @@
 import { IsOptional, IsString, IsUrl } from 'class-validator';
 
-export default class LinkCreationDTO {
+export default class LinkUpdateDTO {
   @IsOptional()
   @IsString()
-  alias?: string;
+  newAlias?: string;
 
+  @IsOptional()
   @IsUrl()
-  url: string;
+  url?: string;
 }
