@@ -32,7 +32,7 @@ export default class LinksService {
     user,
   }: {
     linkData: LinkCreationDTO;
-    user: JwtPayload;
+    user?: JwtPayload;
   }) {
     const URLData = new URL(linkData.url);
 
@@ -46,7 +46,7 @@ export default class LinksService {
     return this.prismaService.links.create({
       data: {
         alias: alias,
-        ...(user.userId && {
+        ...(user?.userId && {
           user: {
             connect: {
               id: user.userId,
