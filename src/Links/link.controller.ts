@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import LinksService from './links.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
-import { AllowAnonymous } from 'src/Auth/allowanonymous.metadata';
-import JwtAuthGuard from 'src/Auth/JWT.guard';
-import { Request as RequestType } from 'src/types';
+import { AllowAnonymous } from '../Auth/allowanonymous.metadata';
+import JwtAuthGuard from '../Auth/JWT.guard';
+import { Request as RequestType } from '../types';
 import LinkUpdateDTO from './DTO/link-update.dto';
 
 @Controller('links')
