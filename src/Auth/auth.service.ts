@@ -37,6 +37,7 @@ export default class AuthService {
       throw new UnauthorizedException();
 
     const payload = {};
-    return this.jwtService.sign(payload, { subject: user.id });
+    const token = this.jwtService.sign(payload, { subject: user.id });
+    return { access_token: token };
   }
 }
