@@ -27,6 +27,16 @@ export default class LinksService {
     return link;
   }
 
+  async getLinkByUrl(url: string) {
+    return this.prismaService.links.findFirst({
+      where: {
+        URL: {
+          url: url,
+        },
+      },
+    });
+  }
+
   createUrl({
     linkData,
     user,
