@@ -28,13 +28,24 @@ export default class LinksController {
   @Post()
   @AllowAnonymous()
   @UseGuards(JwtAuthGuard)
-  createLink(
+  async createLink(
     @Request() req: RequestType,
     @Body() linkCreationData: LinkCreationDTO,
   ) {
+    if (req.user?.userId) {
+      return this.linksService.createUrl({
+        linkData: linkCreationData,
+        user: req.user,
+      });
+    }
+
+    const existingLink = await this.linksService.getLinkByUrl(
+      linkCreationData.url,
+    );
+    if (existingLink) return existingLink;
+
     return this.linksService.createUrl({
       linkData: linkCreationData,
-      user: req.user,
     });
   }
 
