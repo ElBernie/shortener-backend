@@ -1,8 +1,10 @@
 import {
+  ConflictException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 import { RegisterDTO } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
@@ -16,13 +18,31 @@ export default class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  register(userData: RegisterDTO) {
-    return this.prismaService.user.create({
-      data: {
-        email: userData.email,
-        password: bcrypt.hashSync(userData.password, 10),
-      },
-    });
+  async register(userData: RegisterDTO) {
+    try {
+      const createUser = await this.prismaService.user.create({
+        data: {
+          email: userData.email,
+          password: bcrypt.hashSync(userData.password, 10),
+        },
+      });
+
+      delete createUser.email;
+      delete createUser.password;
+      return createUser;
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
+        switch (error.code) {
+          case 'P2002': {
+            throw new ConflictException();
+          }
+          default: {
+            throw new Error(error.message);
+          }
+        }
+      }
+      throw new Error(error);
+    }
   }
 
   async login(userLoginData: LoginDTO) {
