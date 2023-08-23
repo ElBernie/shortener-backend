@@ -32,14 +32,8 @@ export default class AuthService {
       return createUser;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        switch (error.code) {
-          case 'P2002': {
-            throw new ConflictException();
-          }
-          default: {
-            throw new Error(error.message);
-          }
-        }
+        if (error.code === 'P2002') throw new ConflictException();
+        throw new Error(error.message);
       }
       throw new Error(error);
     }
