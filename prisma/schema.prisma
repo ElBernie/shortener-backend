@@ -27,6 +27,7 @@ model Workspace {
   name      String   @unique
   owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   ownerId   String
+  type      String   @default("PERSONAL")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
