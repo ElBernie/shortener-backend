@@ -24,6 +24,14 @@ export default class AuthService {
         data: {
           email: userData.email,
           password: bcrypt.hashSync(userData.password, 10),
+          OwnedWorkspaces: {
+            create: {
+              name: `Personnal Workspace`,
+            },
+          },
+        },
+        include: {
+          OwnedWorkspaces: true,
         },
       });
 
