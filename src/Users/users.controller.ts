@@ -14,4 +14,11 @@ export default class UsersController {
 
     return userData;
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/workspaces')
+  async getUserWorkspaces(@Req() request: any) {
+    const { userId } = request.user;
+    return this.usersService.getUserWorkspaces(userId);
+  }
 }
