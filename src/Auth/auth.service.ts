@@ -27,6 +27,7 @@ export default class AuthService {
           OwnedWorkspaces: {
             create: {
               name: `Personnal Workspace`,
+              deletable: false,
             },
           },
         },
