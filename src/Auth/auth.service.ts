@@ -26,7 +26,7 @@ export default class AuthService {
           password: bcrypt.hashSync(userData.password, 10),
           OwnedWorkspaces: {
             create: {
-              name: `Personnal Workspace`,
+              name: `Personal Workspace`,
               deletable: false,
             },
           },
@@ -53,14 +53,21 @@ export default class AuthService {
       where: {
         email: userLoginData.email,
       },
+      include: {
+        OwnedWorkspaces: true,
+      },
     });
 
     if (!user) throw new NotFoundException('USER_NOT_FOUND');
     if (!bcrypt.compareSync(userLoginData.password, user.password))
       throw new UnauthorizedException();
 
+    const defaultWorkspace = user.OwnedWorkspaces.filter(
+      (workspace) => workspace.type == 'PERSONAL',
+    );
+
     const payload = {};
     const token = this.jwtService.sign(payload, { subject: user.id });
-    return { access_token: token };
+    return { access_token: token, defaultWorkspace: defaultWorkspace[0] };
   }
 }
