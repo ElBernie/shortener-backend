@@ -35,7 +35,6 @@ const linksArray = [
   },
 ];
 
-console.log(linksArray);
 const db = {
   links: {
     findMany: jest.fn().mockResolvedValue(linksArray),
