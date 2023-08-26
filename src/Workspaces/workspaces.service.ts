@@ -29,7 +29,6 @@ export default class WorkspacesService {
       userId,
       workspaceId,
     );
-    console.log('USER PERMISSIONS', usersPermissions.includes(permission));
 
     return (
       usersPermissions.includes('*') || usersPermissions.includes(permission)
