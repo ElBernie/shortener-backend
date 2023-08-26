@@ -7,5 +7,6 @@ import WorkspacesRolesService from './workspacesRoles.service';
 @Module({
   controllers: [WorkspacesController],
   providers: [PrismaService, WorkspacesService, WorkspacesRolesService],
+  exports: [WorkspacesService],
 })
 export default class WorkspacesModule {}

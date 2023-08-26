@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Request,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import LinksService from './links.service';
@@ -15,10 +16,14 @@ import { AllowAnonymous } from '../Auth/allowanonymous.metadata';
 import JwtAuthGuard from '../Auth/JWT.guard';
 import { Request as RequestType } from '../types';
 import LinkUpdateDTO from './DTO/link-update.dto';
+import WorkspacesService from 'src/Workspaces/workspaces.service';
 
 @Controller('links')
 export default class LinksController {
-  constructor(private linksService: LinksService) {}
+  constructor(
+    private linksService: LinksService,
+    private workspacesService: WorkspacesService,
+  ) {}
 
   @Get('/:alias')
   getLink(@Param('alias') alias: string) {
@@ -32,10 +37,19 @@ export default class LinksController {
     @Request() req: RequestType,
     @Body() linkCreationData: LinkCreationDTO,
   ) {
+    if (
+      !this.workspacesService.userHasPermission(
+        req.user.userId,
+        linkCreationData.workspace,
+        'linksCreate',
+      )
+    )
+      throw new UnauthorizedException();
     if (req.user?.userId) {
       return this.linksService.createUrl({
         linkData: linkCreationData,
         user: req.user,
+        workspaceId: linkCreationData.workspace,
       });
     }
 

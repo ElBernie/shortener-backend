@@ -1,4 +1,4 @@
-import { IsBoolean, IsOptional, IsString, IsUrl } from 'class-validator';
+import { IsOptional, IsString, IsUrl } from 'class-validator';
 
 export default class LinkCreationDTO {
   @IsOptional()
@@ -7,4 +7,8 @@ export default class LinkCreationDTO {
 
   @IsUrl()
   url: string;
+
+  @IsOptional()
+  @IsString()
+  workspace: string;
 }
