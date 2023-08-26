@@ -40,9 +40,11 @@ export default class LinksService {
   createUrl({
     linkData,
     user,
+    workspaceId,
   }: {
     linkData: LinkCreationDTO;
     user?: JwtPayload;
+    workspaceId?: string;
   }) {
     const URLData = new URL(linkData.url);
 
@@ -60,6 +62,13 @@ export default class LinksService {
           user: {
             connect: {
               id: user.userId,
+            },
+          },
+        }),
+        ...(workspaceId && {
+          workspace: {
+            connect: {
+              id: workspaceId,
             },
           },
         }),

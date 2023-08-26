@@ -51,10 +51,25 @@ model WorkspaceMembers {
 }
 
 model WorkspaceRoles {
-  id        String   @id @default(uuid())
+  id        String  @id @default(uuid())
   name      String
-  deletable Boolean  @default(true)
-  default   Boolean  @default(false)
+  deletable Boolean @default(true)
+  default   Boolean @default(false)
+
+  // permissions
+  workspaceEdit          Boolean? @default(false)
+  workspaceMembersEdit   Boolean? @default(false)
+  workspaceMembersInvite Boolean? @default(false)
+  workspaceMembersRemove Boolean? @default(false)
+
+  linksView      Boolean? @default(false)
+  linksViewOwn   Boolean? @default(false)
+  linksCreate    Boolean? @default(false)
+  linksEdit      Boolean? @default(false)
+  linksEditOwn   Boolean? @default(false)
+  linksDelete    Boolean? @default(false)
+  linksDeleteOwn Boolean? @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
