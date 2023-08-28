@@ -11,9 +11,10 @@ import {
 import WorkspacesService from './workspaces.service';
 import WorkspacesCreate from 'src/Workspaces/DTO/workspaces-create.dto';
 import { Request } from 'src/types';
-import JwtAuthGuard from 'src/Auth/JWT.guard';
+import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import { WorksapcesRolesCreateDTO } from './DTO/workpacesroles-create.dto';
 import WorkspacesRolesService from './workspacesRoles.service';
+import Permission from 'src/Auth/decorators/permission.decorator';
 
 @Controller('/workspaces')
 export default class WorkspacesController {
@@ -30,21 +31,22 @@ export default class WorkspacesController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/:id/roles')
+  @Permission('workspaceEdit')
+  @Post('/:workspaceId/roles')
   async createWorkspaceRole(
     @Req() req: Request,
-    @Param('id') workspaceId: string,
+    @Param('workspaceId') workspaceId: string,
     @Body() params: WorksapcesRolesCreateDTO,
   ) {
     //todo check
-    const userHasPermissionToCreateRole =
-      await this.workspacesService.userHasPermission(
-        req.user.userId,
-        workspaceId,
-        'workspaceEdit',
-      );
+    // const userHasPermissionToCreateRole =
+    //   await this.workspacesService.userHasPermission(
+    //     req.user.userId,
+    //     workspaceId,
+    //     'workspaceEdit',
+    //   );
 
-    if (!userHasPermissionToCreateRole) throw new UnauthorizedException();
+    // if (!userHasPermissionToCreateRole) throw new UnauthorizedException();
     const { name, ...permissions } = params;
     return this.workspacesRolesService.createRole({
       workspaceId: workspaceId,

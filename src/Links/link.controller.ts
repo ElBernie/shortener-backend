@@ -12,8 +12,8 @@ import {
 } from '@nestjs/common';
 import LinksService from './links.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
-import { AllowAnonymous } from '../Auth/allowanonymous.metadata';
-import JwtAuthGuard from '../Auth/JWT.guard';
+import { AllowAnonymous } from '../Auth/decorators/allowanonymous.decorator';
+import JwtAuthGuard from '../Auth/guards/JWT.guard';
 import { Request as RequestType } from '../types';
 import LinkUpdateDTO from './DTO/link-update.dto';
 import WorkspacesService from 'src/Workspaces/workspaces.service';
