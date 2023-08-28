@@ -38,15 +38,6 @@ export default class WorkspacesController {
     @Param('workspaceId') workspaceId: string,
     @Body() params: WorksapcesRolesCreateDTO,
   ) {
-    //todo check
-    // const userHasPermissionToCreateRole =
-    //   await this.workspacesService.userHasPermission(
-    //     req.user.userId,
-    //     workspaceId,
-    //     'workspaceEdit',
-    //   );
-
-    // if (!userHasPermissionToCreateRole) throw new UnauthorizedException();
     const { name, ...permissions } = params;
     return this.workspacesRolesService.createRole({
       workspaceId: workspaceId,
