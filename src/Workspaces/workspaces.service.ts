@@ -4,7 +4,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
-import { WORKSPACE_PERMISSIONS } from './types';
+import { WORKSPACE_PERMISSIONS } from 'src/types';
 
 @Injectable()
 export default class WorkspacesService {
@@ -16,6 +16,35 @@ export default class WorkspacesService {
       data: {
         name,
         ownerId: userId,
+      },
+    });
+  }
+
+  async getWorkspaces({ userId }: { userId: string }) {
+    return this.prismaService.workspace.findMany({
+      where: {
+        OR: [
+          {
+            ownerId: userId,
+          },
+          {
+            WorkspaceMembers: {
+              every: {
+                userId: userId,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        WorkspaceMembers: {
+          where: {
+            userId: userId,
+          },
+          include: {
+            role: true,
+          },
+        },
       },
     });
   }
