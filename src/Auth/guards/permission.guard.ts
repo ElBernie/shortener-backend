@@ -6,9 +6,9 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { WORKSPACE_PERMISSIONS } from 'src/Workspaces/types';
+
 import WorkspacesService from 'src/Workspaces/workspaces.service';
-import { Request } from 'src/types';
+import { Request, WORKSPACE_PERMISSIONS } from 'src/types';
 
 @Injectable()
 export default class PermissionGuard implements CanActivate {
