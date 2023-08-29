@@ -1,10 +1,11 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
-import { WORKSPACE_PERMISSIONS } from './types';
+import { WORKSPACE_PERMISSIONS } from 'src/types';
 
 @Injectable()
 export default class WorkspacesService {
@@ -16,6 +17,51 @@ export default class WorkspacesService {
       data: {
         name,
         ownerId: userId,
+      },
+    });
+  }
+
+  async deleteWorkspace(workspaceId: string, userId: string) {
+    const workspace = await this.prismaService.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+    });
+
+    if (!workspace) throw new NotFoundException();
+    if (workspace.ownerId != userId) throw new ForbiddenException();
+    if (workspace.deletable == false) throw new ForbiddenException();
+
+    return this.prismaService.workspace.delete({
+      where: { id: workspaceId },
+    });
+  }
+
+  async getWorkspaces({ userId }: { userId: string }) {
+    return this.prismaService.workspace.findMany({
+      where: {
+        OR: [
+          {
+            ownerId: userId,
+          },
+          {
+            WorkspaceMembers: {
+              some: {
+                userId: userId,
+              },
+            },
+          },
+        ],
+      },
+      include: {
+        WorkspaceMembers: {
+          where: {
+            userId: userId,
+          },
+          include: {
+            role: true,
+          },
+        },
       },
     });
   }
