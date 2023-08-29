@@ -1,5 +1,6 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -59,6 +60,7 @@ export default class WorkspacesMembersServices {
       where: { id: workspaceId },
     });
     if (!workspace) throw new NotFoundException();
+    if (workspace.type == 'PERSONAL') throw new ForbiddenException();
 
     const inviteAlreadyExists = await this.prisma.workspaceInvites.findFirst({
       where: {
