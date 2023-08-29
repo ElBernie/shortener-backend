@@ -35,6 +35,7 @@ model Workspace {
   WorkspaceMembers WorkspaceMembers[]
   WorkspaceRoles   WorkspaceRoles[]
   Links            Links[]
+  WorkspaceInvites WorkspaceInvites[]
 }
 
 model WorkspaceMembers {
@@ -76,6 +77,18 @@ model WorkspaceRoles {
   workspace   Workspace          @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   workspaceId String
   members     WorkspaceMembers[]
+}
+
+model WorkspaceInvites {
+  id        String   @id @default(uuid())
+  email     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  workspaceId String
+
+  @@unique([workspaceId, email])
 }
 
 model Links {
