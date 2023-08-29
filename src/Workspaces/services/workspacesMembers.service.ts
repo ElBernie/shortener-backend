@@ -1,5 +1,4 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { User } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 
 @Injectable()
@@ -14,7 +13,6 @@ export default class WorkspacesMembersServices {
         owner: true,
       },
     });
-    console.log(workspaceOwner);
 
     const members = await this.prisma.workspaceMembers.findMany({
       where: { workspaceId: workspaceId },

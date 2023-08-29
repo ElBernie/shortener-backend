@@ -22,11 +22,10 @@ export default class PermissionGuard implements CanActivate {
     >('permission', [context.getHandler(), context.getClass()]);
 
     const request: Request = context.switchToHttp().getRequest<Request>();
-    console.log(request.params.workspaceId);
+
     if (!(request.body.workspaceId || request.params.workspaceId))
       throw new BadRequestException('MISSING_WORKSPACE_ID');
 
-    console.log(request.user);
     if (!request.user?.userId)
       throw new UnauthorizedException('MISSING_USER_ID');
 
