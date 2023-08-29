@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Post,
@@ -38,6 +39,16 @@ export default class WorkspacesController {
   createWorkspace(@Req() req: Request, @Body() params: WorkspacesCreate) {
     if (!req.user.userId) throw new UnauthorizedException();
     return this.workspacesService.createWorkspace(req.user.userId, params.name);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/:workspaceId')
+  deleteWorkspace(
+    @Req() req: Request,
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    if (!req.user.userId) throw new UnauthorizedException();
+    return this.workspacesService.deleteWorkspace(workspaceId, req.user.userId);
   }
 
   @UseGuards(JwtAuthGuard)

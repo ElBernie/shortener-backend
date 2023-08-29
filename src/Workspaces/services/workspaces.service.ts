@@ -20,6 +20,19 @@ export default class WorkspacesService {
     });
   }
 
+  async deleteWorkspace(workspaceId: string, userId: string) {
+    const workspace = await this.prismaService.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+    });
+
+    if (!workspace) throw new NotFoundException();
+    if (workspace.ownerId != userId) throw new UnauthorizedException();
+
+    return this.prismaService.workspace.delete({ where: { id: workspaceId } });
+  }
+
   async getWorkspaces({ userId }: { userId: string }) {
     return this.prismaService.workspace.findMany({
       where: {
