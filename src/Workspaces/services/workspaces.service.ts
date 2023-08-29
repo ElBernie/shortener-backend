@@ -1,4 +1,5 @@
 import {
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -28,9 +29,12 @@ export default class WorkspacesService {
     });
 
     if (!workspace) throw new NotFoundException();
-    if (workspace.ownerId != userId) throw new UnauthorizedException();
+    if (workspace.ownerId != userId) throw new ForbiddenException();
+    if (workspace.deletable == false) throw new ForbiddenException();
 
-    return this.prismaService.workspace.delete({ where: { id: workspaceId } });
+    return this.prismaService.workspace.delete({
+      where: { id: workspaceId },
+    });
   }
 
   async getWorkspaces({ userId }: { userId: string }) {
