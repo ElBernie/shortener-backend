@@ -88,13 +88,32 @@ export default class WorkspacesMembersServices {
        */
       return userInvite;
     } else {
-      const isUserAlreadyInWorkspace =
-        await this.prisma.workspaceMembers.findFirst({
-          where: {
-            workspaceId: workspaceId,
-            userId: user.id,
-          },
-        });
+      const isUserAlreadyInWorkspace = await this.prisma.workspace.findFirst({
+        where: {
+          AND: [
+            { id: workspaceId },
+            {
+              OR: [
+                {
+                  owner: {
+                    email: email,
+                  },
+                },
+                {
+                  WorkspaceMembers: {
+                    some: {
+                      user: {
+                        email: email,
+                      },
+                    },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      });
+
       if (isUserAlreadyInWorkspace) throw new ConflictException();
 
       const userInvite = await this.prisma.workspaceInvites.create({
