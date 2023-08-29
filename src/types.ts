@@ -6,6 +6,14 @@ export type Request = ExpressRequest & {
 };
 
 export enum WORKSPACE_PERMISSIONS {
+  /**
+   * Virtual permissions, not stored in DB
+   */
+  owner = 'owner',
+
+  /*
+    Permissions stored in DB
+  */
   workspaceEdit = 'workspaceEdit',
   workspaceMembersEdit = 'workspaceMembersEdit',
   workspaceMembersInvite = 'workspaceMembersInvite',

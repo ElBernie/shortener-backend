@@ -20,11 +20,13 @@ export default class WorkspacesMembersController {
     private workspacesMembersService: WorkspacesMembersServices,
   ) {}
 
+  @UseGuards(JwtAuthGuard)
   @Get('/:workspaceId/members')
   getMembers(@Param('workspaceId') workspaceId: string) {
     return this.workspacesMembersService.getWorkspaceMember(workspaceId);
   }
 
+  @Permission('workspaceMembersRemove')
   @Delete('/:workspaceId/members/:userId')
   removeMember(@Param() params: { workspaceId: string; userId: string }) {
     return this.workspacesMembersService.deleteWorkspaceMember(
@@ -33,9 +35,8 @@ export default class WorkspacesMembersController {
     );
   }
 
-  @Post('/:workspaceId/invites')
-  @UseGuards(JwtAuthGuard)
   @Permission('workspaceMembersInvite')
+  @Post('/:workspaceId/invites')
   createInvite(@Body() inviteCreate: InviteCreateDTO) {
     return this.workspacesMembersService.inviteMember(
       inviteCreate.workspaceId,

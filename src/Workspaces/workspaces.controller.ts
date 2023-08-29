@@ -41,7 +41,7 @@ export default class WorkspacesController {
     return this.workspacesService.createWorkspace(req.user.userId, params.name);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Permission('owner')
   @Delete('/:workspaceId')
   deleteWorkspace(
     @Req() req: Request,
@@ -51,7 +51,6 @@ export default class WorkspacesController {
     return this.workspacesService.deleteWorkspace(workspaceId, req.user.userId);
   }
 
-  @UseGuards(JwtAuthGuard)
   @Permission('workspaceEdit')
   @Post('/:workspaceId/roles')
   async createWorkspaceRole(
