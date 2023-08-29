@@ -1,12 +1,19 @@
 import { Module } from '@nestjs/common';
 import WorkspacesController from './workspaces.controller';
 import { PrismaService } from 'src/Prisma/prisma.service';
-import WorkspacesService from './workspaces.service';
-import WorkspacesRolesService from './workspacesRoles.service';
+import WorkspacesService from './services/workspaces.service';
+import WorkspacesMembersController from './workspacesMembers.controller';
+import WorkspacesRolesService from './services/workspacesRoles.service';
+import WorkspacesMembersServices from './services/workspacesMembers.service';
 
 @Module({
-  controllers: [WorkspacesController],
-  providers: [PrismaService, WorkspacesService, WorkspacesRolesService],
+  controllers: [WorkspacesController, WorkspacesMembersController],
+  providers: [
+    PrismaService,
+    WorkspacesService,
+    WorkspacesRolesService,
+    WorkspacesMembersServices,
+  ],
   exports: [WorkspacesService],
 })
 export default class WorkspacesModule {}

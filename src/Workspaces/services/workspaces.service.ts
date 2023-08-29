@@ -29,7 +29,7 @@ export default class WorkspacesService {
           },
           {
             WorkspaceMembers: {
-              every: {
+              some: {
                 userId: userId,
               },
             },

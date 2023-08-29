@@ -16,7 +16,7 @@ import { AllowAnonymous } from '../Auth/decorators/allowanonymous.decorator';
 import JwtAuthGuard from '../Auth/guards/JWT.guard';
 import { Request as RequestType } from '../types';
 import LinkUpdateDTO from './DTO/link-update.dto';
-import WorkspacesService from 'src/Workspaces/workspaces.service';
+import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 
 @Controller('links')
 export default class LinksController {

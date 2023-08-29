@@ -6,8 +6,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-
-import WorkspacesService from 'src/Workspaces/workspaces.service';
+import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 import { Request, WORKSPACE_PERMISSIONS } from 'src/types';
 
 @Injectable()

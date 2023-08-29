@@ -8,13 +8,13 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import WorkspacesService from './workspaces.service';
+import WorkspacesService from './services/workspaces.service';
 import WorkspacesCreate from 'src/Workspaces/DTO/workspaces-create.dto';
 import { Request } from 'src/types';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import { WorksapcesRolesCreateDTO } from './DTO/workpacesroles-create.dto';
-import WorkspacesRolesService from './workspacesRoles.service';
 import Permission from 'src/Auth/decorators/permission.decorator';
+import WorkspacesRolesService from './services/workspacesRoles.service';
 
 @Controller('/workspaces')
 export default class WorkspacesController {
