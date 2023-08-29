@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Delete, Get, Param } from '@nestjs/common';
 import WorkspacesService from './services/workspaces.service';
 import WorkspacesMembersServices from './services/workspacesMembers.service';
 
@@ -10,7 +10,15 @@ export default class WorkspacesMembersController {
   ) {}
 
   @Get('/:workspaceId/members')
-  test(@Param('workspaceId') workspaceId: string) {
+  getMembers(@Param('workspaceId') workspaceId: string) {
     return this.workspacesMembersService.getWorkspaceMember(workspaceId);
+  }
+
+  @Delete('/:workspaceId/members/:userId')
+  removeMember(@Param() params: { workspaceId: string; userId: string }) {
+    return this.workspacesMembersService.deleteWorkspaceMember(
+      params.workspaceId,
+      params.userId,
+    );
   }
 }

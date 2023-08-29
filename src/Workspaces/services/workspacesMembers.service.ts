@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { User } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 
@@ -33,5 +33,21 @@ export default class WorkspacesMembersServices {
         return users.user;
       }),
     };
+  }
+
+  async deleteWorkspaceMember(workspaceId: string, userId: string) {
+    const workspaceMembership = await this.prisma.workspaceMembers.findFirst({
+      where: {
+        userId: userId,
+        workspaceId: workspaceId,
+      },
+    });
+    if (!workspaceMembership) throw new NotFoundException();
+
+    return this.prisma.workspaceMembers.delete({
+      where: {
+        id: workspaceMembership.id,
+      },
+    });
   }
 }
