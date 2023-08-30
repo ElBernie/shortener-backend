@@ -17,6 +17,14 @@ export default class WorkspacesService {
       data: {
         name,
         ownerId: userId,
+        type: 'PROFESSIONAL',
+        WorkspaceRoles: {
+          create: {
+            name: 'Members',
+            default: true,
+            deletable: false,
+          },
+        },
       },
     });
   }
