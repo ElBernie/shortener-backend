@@ -88,10 +88,8 @@ export default class UsersService {
         default: true,
       },
     });
-    if (!defaultRole)
-      throw new ConflictException(
-        'NO_DEFAULT_ROLE',
-      ); /** @todo better error ? */
+    /** @todo better error ? */
+    if (!defaultRole) throw new ConflictException('NO_DEFAULT_ROLE');
 
     await this.prismaService.workspaceMembers.create({
       data: {
@@ -104,7 +102,6 @@ export default class UsersService {
     return this.prismaService.workspaceInvites.delete({
       where: { id: inviteId },
     });
-    // todo:get default role, create a new workspace member entry
   }
 
   async rejectInvite({
