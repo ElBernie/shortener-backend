@@ -40,4 +40,20 @@ export default class UsersService {
 
     return { owned: ownedWorkspaces, member: workspacesMembership };
   }
+
+  async getUserInvites(userId: string) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new NotFoundException();
+
+    return await this.prismaService.workspaceInvites.findMany({
+      where: {
+        email: user.email,
+      },
+      include: {
+        workspace: true,
+      },
+    });
+  }
 }

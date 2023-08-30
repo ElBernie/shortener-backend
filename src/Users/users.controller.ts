@@ -1,6 +1,7 @@
 import { Controller, Get, Req, UseGuards } from '@nestjs/common';
 import UsersService from './users.service';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
+import { Request } from 'src/types';
 
 @Controller('users')
 export default class UsersController {
@@ -17,8 +18,15 @@ export default class UsersController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/me/workspaces')
-  async getUserWorkspaces(@Req() request: any) {
+  async getUserWorkspaces(@Req() request: Request) {
     const { userId } = request.user;
     return this.usersService.getUserWorkspaces(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('/me/invites')
+  async getUserInvites(@Req() request: Request) {
+    const { userId } = request.user;
+    return this.usersService.getUserInvites(userId);
   }
 }
