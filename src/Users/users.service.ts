@@ -1,4 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
 
 @Injectable()
@@ -54,6 +60,74 @@ export default class UsersService {
       include: {
         workspace: true,
       },
+    });
+  }
+
+  async acceptInvite({
+    inviteId,
+    userId,
+  }: {
+    inviteId: string;
+    userId: string;
+  }) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new UnauthorizedException();
+
+    const invite = await this.prismaService.workspaceInvites.findUnique({
+      where: { id: inviteId },
+    });
+    if (!invite) throw new NotFoundException();
+
+    if (invite.email != user.email) throw new ForbiddenException();
+
+    const defaultRole = await this.prismaService.workspaceRoles.findFirst({
+      where: {
+        workspaceId: invite.workspaceId,
+        default: true,
+      },
+    });
+    if (!defaultRole)
+      throw new ConflictException(
+        'NO_DEFAULT_ROLE',
+      ); /** @todo better error ? */
+
+    await this.prismaService.workspaceMembers.create({
+      data: {
+        roleId: defaultRole.id,
+        userId: userId,
+        workspaceId: invite.workspaceId,
+      },
+    });
+
+    return this.prismaService.workspaceInvites.delete({
+      where: { id: inviteId },
+    });
+    // todo:get default role, create a new workspace member entry
+  }
+
+  async rejectInvite({
+    inviteId,
+    userId,
+  }: {
+    inviteId: string;
+    userId: string;
+  }) {
+    const user = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+    if (!user) throw new UnauthorizedException();
+
+    const invite = await this.prismaService.workspaceInvites.findUnique({
+      where: { id: inviteId },
+    });
+    if (!invite) throw new NotFoundException();
+
+    if (invite.email != user.email) throw new ForbiddenException();
+
+    return this.prismaService.workspaceInvites.delete({
+      where: { id: inviteId },
     });
   }
 }
