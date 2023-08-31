@@ -50,6 +50,15 @@ export default class WorkspacesService {
     });
   }
 
+  async getWorkspaceInvites(workspaceId: string) {
+    const workspace = this.getWorkspace(workspaceId);
+    if (!workspace) throw new NotFoundException();
+
+    return this.prismaService.workspaceInvites.findMany({
+      where: { workspaceId: workspaceId },
+    });
+  }
+
   async userHasPermission(
     userId: string,
     workspaceId: string,
