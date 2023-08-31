@@ -1,12 +1,11 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
-import { JwtPayload } from 'src/Auth/JWT.strategy';
 import * as nanoid from 'nanoid';
 import { RequireAtLeastOne } from 'src/types';
 
@@ -56,11 +55,11 @@ export default class LinksService {
 
   createUrl({
     linkData,
-    user,
+    userId,
     workspaceId,
   }: {
     linkData: LinkCreationDTO;
-    user?: JwtPayload;
+    userId?: string;
     workspaceId?: string;
   }) {
     const URLData = new URL(linkData.url);
@@ -75,10 +74,10 @@ export default class LinksService {
     return this.prismaService.links.create({
       data: {
         alias: alias,
-        ...(user?.userId && {
+        ...(userId && {
           user: {
             connect: {
-              id: user.userId,
+              id: userId,
             },
           },
         }),

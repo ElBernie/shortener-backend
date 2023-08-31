@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -43,30 +44,34 @@ export default class LinksController {
     @Request() req: RequestType,
     @Body() linkCreationData: LinkCreationDTO,
   ) {
-    if (
-      !this.workspacesService.userHasPermission(
-        req.user.userId,
-        linkCreationData.workspace,
-        'linksCreate',
+    if (req.user.userId) {
+      if (!linkCreationData.workspaceId)
+        throw new BadRequestException('MISSING_WORKSPACE_ID');
+
+      if (
+        !this.workspacesService.userHasPermission(
+          req.user.userId,
+          linkCreationData.workspaceId,
+          'linksCreate',
+        )
       )
-    )
-      throw new UnauthorizedException();
-    if (req.user?.userId) {
+        throw new UnauthorizedException();
+
       return this.linksService.createUrl({
         linkData: linkCreationData,
-        user: req.user,
-        workspaceId: linkCreationData.workspace,
+        userId: req.user.userId,
+        workspaceId: linkCreationData.workspaceId,
+      });
+    } else {
+      const existingLink = await this.linksService.getLinkByUrl(
+        linkCreationData.url,
+      );
+      if (existingLink) return existingLink;
+
+      return this.linksService.createUrl({
+        linkData: linkCreationData,
       });
     }
-
-    const existingLink = await this.linksService.getLinkByUrl(
-      linkCreationData.url,
-    );
-    if (existingLink) return existingLink;
-
-    return this.linksService.createUrl({
-      linkData: linkCreationData,
-    });
   }
 
   @Patch('/:linkId')
