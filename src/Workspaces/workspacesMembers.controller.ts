@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import WorkspacesService from './services/workspaces.service';
@@ -12,6 +13,7 @@ import WorkspacesMembersServices from './services/workspacesMembers.service';
 import InviteCreateDTO from './DTO/invite-create.dto';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import Permission from 'src/Auth/decorators/permission.decorator';
+import { Request } from 'src/types';
 
 @Controller('/workspaces')
 export default class WorkspacesMembersController {
@@ -21,8 +23,12 @@ export default class WorkspacesMembersController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
+  @Permission('member')
   @Get('/:workspaceId/members')
-  getMembers(@Param('workspaceId') workspaceId: string) {
+  async getMembers(
+    @Req() req: Request,
+    @Param('workspaceId') workspaceId: string,
+  ) {
     return this.workspacesMembersService.getWorkspaceMember(workspaceId);
   }
 

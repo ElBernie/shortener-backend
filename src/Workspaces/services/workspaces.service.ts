@@ -11,6 +11,11 @@ import { WORKSPACE_PERMISSIONS } from 'src/types';
 export default class WorkspacesService {
   constructor(private prismaService: PrismaService) {}
 
+  getWorkspace(workspaceId) {
+    return this.prismaService.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+  }
   createWorkspace(userId: string, name: string) {
     if (!userId) throw new UnauthorizedException();
     return this.prismaService.workspace.create({
