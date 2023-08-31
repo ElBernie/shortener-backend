@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   NotFoundException,
   Param,
@@ -17,12 +18,14 @@ import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import { WorksapcesRolesCreateDTO } from './DTO/workpacesroles-create.dto';
 import Permission from 'src/Auth/decorators/permission.decorator';
 import WorkspacesRolesService from './services/workspacesRoles.service';
+import LinksService from 'src/Links/links.service';
 
 @Controller('/workspaces')
 export default class WorkspacesController {
   constructor(
     private workspacesService: WorkspacesService,
     private workspacesRolesService: WorkspacesRolesService,
+    private linksService: LinksService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -53,6 +56,40 @@ export default class WorkspacesController {
   @Post('/:workspaceId/roles')
   async getWorkspaceRoles(@Param('workspaceId') workspaceId: string) {
     return this.workspacesRolesService.getWorkspaceRoles(workspaceId);
+  }
+
+  @Permission('member')
+  @Get('/:workspaceId/links')
+  async getWorkspaceLinks(
+    @Req() req: Request,
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    const { userId } = req.user;
+    const usersPermissions =
+      await this.workspacesService.getWorkspacePermissionsForUser(
+        userId,
+        workspaceId,
+      );
+
+    if (
+      !usersPermissions.includes('linksView') ||
+      !usersPermissions.includes('linksViewOwn') ||
+      !usersPermissions.includes('owner')
+    )
+      throw new ForbiddenException();
+
+    if (
+      usersPermissions.includes('linksView') ||
+      usersPermissions.includes('owner')
+    )
+      // linksView // linksViewOwn// owner
+      return this.linksService.getLinks({
+        where: { workspaceId: workspaceId },
+      });
+
+    return this.linksService.getLinks({
+      where: { workspaceId: workspaceId, userId: userId },
+    });
   }
 
   @Permission('workspaceEdit')
