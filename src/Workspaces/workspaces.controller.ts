@@ -53,12 +53,6 @@ export default class WorkspacesController {
   }
 
   @Permission('member')
-  @Post('/:workspaceId/roles')
-  async getWorkspaceRoles(@Param('workspaceId') workspaceId: string) {
-    return this.workspacesRolesService.getWorkspaceRoles(workspaceId);
-  }
-
-  @Permission('member')
   @Get('/:workspaceId/links')
   async getWorkspaceLinks(
     @Req() req: Request,
@@ -89,21 +83,6 @@ export default class WorkspacesController {
 
     return this.linksService.getLinks({
       where: { workspaceId: workspaceId, userId: userId },
-    });
-  }
-
-  @Permission('workspaceEdit')
-  @Post('/:workspaceId/roles')
-  async createWorkspaceRole(
-    @Req() req: Request,
-    @Param('workspaceId') workspaceId: string,
-    @Body() params: WorksapcesRolesCreateDTO,
-  ) {
-    const { name, ...permissions } = params;
-    return this.workspacesRolesService.createRole({
-      workspaceId: workspaceId,
-      name: name,
-      permissions: permissions,
     });
   }
 
