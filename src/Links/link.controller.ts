@@ -44,7 +44,7 @@ export default class LinksController {
     @Request() req: RequestType,
     @Body() linkCreationData: LinkCreationDTO,
   ) {
-    if (req.user.userId) {
+    if (req.user?.userId) {
       if (!linkCreationData.workspaceId)
         throw new BadRequestException('MISSING_WORKSPACE_ID');
 
