@@ -49,6 +49,8 @@ model WorkspaceMembers {
   workspaceId String
   role        WorkspaceRoles @relation(fields: [roleId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   roleId      String
+
+  @@unique([userId, workspaceId])
 }
 
 model WorkspaceRoles {
