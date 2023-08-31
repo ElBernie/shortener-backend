@@ -36,17 +36,27 @@ export default class UsersService {
       },
     });
 
-    const ownedWorkspacesId = ownedWorkspaces.map((workspace) => workspace.id);
-
-    const workspacesMembership =
-      await this.prismaService.workspaceMembers.findMany({
-        where: {
-          userId: userId,
-          id: {
-            notIn: ownedWorkspacesId,
+    const workspacesMembership = await this.prismaService.workspace.findMany({
+      where: {
+        NOT: [
+          {
+            ownerId: userId,
+          },
+        ],
+        WorkspaceMembers: {
+          some: {
+            userId: userId,
           },
         },
-      });
+      },
+      include: {
+        WorkspaceMembers: {
+          include: {
+            role: true,
+          },
+        },
+      },
+    });
 
     return { owned: ownedWorkspaces, member: workspacesMembership };
   }
