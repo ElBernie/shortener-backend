@@ -29,10 +29,10 @@ export default class LinksController {
   getLinkById(@Param('linkId') linkId: string) {
     return this.linksService.getLinkById(linkId);
   }
-  
+
   @Get('/alias/:alias')
   getLinkByAlias(@Param('alias') alias: string) {
-    return this.linksService.getLinkByAlias(alias);
+    return this.linksService.getLinkByAlias(alias, { include: { url: true } });
   }
 
   @Post()
