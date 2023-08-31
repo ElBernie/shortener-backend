@@ -196,16 +196,11 @@ export default class LinksService {
     });
   }
 
-  async deleteUrl({ alias, user }: { alias: string; user: JwtPayload }) {
-    const { userId } = user;
-    if (!userId) throw new UnauthorizedException();
-
+  async deleteUrl(linkId: string) {
     const link = await this.prismaService.links.findUnique({
-      where: { alias: alias },
+      where: { id: linkId },
     });
     if (!link) throw new NotFoundException();
-    if (link.userId != userId || link.userId == null)
-      throw new UnauthorizedException();
 
     return this.prismaService.links.delete({
       where: {

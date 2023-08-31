@@ -85,12 +85,15 @@ export default class LinksController {
     });
   }
 
-  @Delete('/:alias')
+  @Delete('/:linkId')
   @UseGuards(JwtAuthGuard)
-  deleteLink(@Request() req: RequestType, @Param('alias') alias: string) {
-    return this.linksService.deleteUrl({
-      alias,
-      user: req.user,
-    });
+  async deleteLink(
+    @Request() req: RequestType,
+    @Param('linkId') linkId: string,
+  ) {
+    const link = await this.linksService.getLinkById(linkId);
+    if (link.userId != req.user.userId) throw new ForbiddenException();
+
+    return this.linksService.deleteUrl(linkId);
   }
 }
