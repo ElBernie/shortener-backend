@@ -5,13 +5,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 
+interface GetUserOptions {
+  remove?: Array<keyof Omit<User, 'id' | 'password'>>;
+}
 @Injectable()
 export default class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getUser(userId: string) {
+  async getUser(userId: string, options?: GetUserOptions) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -19,7 +23,7 @@ export default class UsersService {
     });
 
     if (!user) throw new NotFoundException();
-    delete user.email;
+    options.remove.forEach((key) => delete user[key]);
     delete user.password;
 
     return user;
