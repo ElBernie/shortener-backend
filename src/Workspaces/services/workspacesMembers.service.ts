@@ -54,6 +54,38 @@ export default class WorkspacesMembersServices {
     return workspaceMembership;
   }
 
+  async switchWorkspaceMemberRole(
+    workspaceId: string,
+    userId: string,
+    roleId: string,
+  ) {
+    const workspaceMembership = await this.prisma.workspaceMembers.findFirst({
+      where: {
+        userId: userId,
+        workspaceId: workspaceId,
+      },
+    });
+    if (!workspaceMembership) throw new NotFoundException();
+
+    const roleExists = await this.prisma.workspaceRoles.findFirst({
+      where: {
+        workspaceId: workspaceId,
+        id: roleId,
+      },
+    });
+    if (!roleExists) throw new NotFoundException();
+    if (workspaceMembership.roleId == roleId) throw new ConflictException();
+
+    return this.prisma.workspaceMembers.update({
+      where: {
+        id: workspaceMembership.id,
+      },
+      data: {
+        roleId: workspaceMembership.roleId,
+      },
+    });
+  }
+
   async deleteWorkspaceMember(workspaceId: string, userId: string) {
     const workspaceMembership = await this.prisma.workspaceMembers.findFirst({
       where: {

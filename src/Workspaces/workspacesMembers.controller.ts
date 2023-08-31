@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -39,6 +40,19 @@ export default class WorkspacesMembersController {
     return this.workspacesMembersService.getWorkspaceMemberRole(
       workspaceId,
       userId,
+    );
+  }
+
+  @Permission('workspaceMembersEdit')
+  @Patch('/:workspaceId/members/:userId/role')
+  updateMemberRole(
+    @Param() params: { workspaceId: string; userId: string; roleId: string },
+  ) {
+    const { workspaceId, userId, roleId } = params;
+    return this.workspacesMembersService.switchWorkspaceMemberRole(
+      workspaceId,
+      userId,
+      roleId,
     );
   }
 
