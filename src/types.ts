@@ -1,6 +1,11 @@
 import { Request as ExpressRequest } from 'express';
 import { JwtPayload } from './Auth/JWT.strategy';
 
+export type RequireAtLeastOne<T> = {
+  [K in keyof T]-?: Required<Pick<T, K>> &
+    Partial<Pick<T, Exclude<keyof T, K>>>;
+}[keyof T];
+
 export type Request = ExpressRequest & {
   user?: JwtPayload;
 };
