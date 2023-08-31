@@ -7,7 +7,7 @@ interface WorkspaceRoleCreate {
   name: string;
   permissions: WorkspacesRolePermissions;
   deletable?: boolean;
-  defaultWorkspace?: boolean;
+  defaultRole?: boolean;
 }
 
 @Injectable()
@@ -31,7 +31,7 @@ export default class WorkspacesRolesService {
     workspaceId,
     name,
     deletable,
-    defaultWorkspace,
+    defaultRole,
     permissions,
   }: WorkspaceRoleCreate) {
     const workspace = await this.prisma.workspace.findUnique({
@@ -46,7 +46,7 @@ export default class WorkspacesRolesService {
       data: {
         workspaceId: workspaceId,
         name: name,
-        default: defaultWorkspace,
+        default: defaultRole,
         deletable: deletable,
         ...permissions,
       },

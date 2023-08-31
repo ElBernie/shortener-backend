@@ -7,5 +7,6 @@ import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 @Module({
   controllers: [LinksController],
   providers: [PrismaService, LinksService, WorkspacesService],
+  exports: [LinksService],
 })
 export default class LinksModule {}

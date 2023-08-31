@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -12,6 +11,17 @@ import { RequireAtLeastOne } from 'src/types';
 @Injectable()
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
+
+  async getLinks(params: {
+    where: RequireAtLeastOne<{
+      workspaceId: string;
+      userId: string;
+    }>;
+  }) {
+    return this.prismaService.links.findMany({
+      where: params.where,
+    });
+  }
 
   async getLinkById(id: string, options?: { include?: { url?: boolean } }) {
     const link = await this.prismaService.links.findUnique({

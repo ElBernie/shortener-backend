@@ -66,6 +66,12 @@ export default class WorkspacesMembersController {
   }
 
   @Permission('workspaceMembersInvite')
+  @Get('/:workspaceId/invites')
+  getInvites(@Param('workspaceId') workspaceId: string) {
+    return this.worksspacesService.getWorkspaceInvites(workspaceId);
+  }
+
+  @Permission('workspaceMembersInvite')
   @Post('/:workspaceId/invites')
   createInvite(@Body() inviteCreate: InviteCreateDTO) {
     return this.workspacesMembersService.inviteMember(

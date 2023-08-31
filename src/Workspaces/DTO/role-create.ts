@@ -1,6 +1,6 @@
-import { IsBoolean, IsString, IsOptional, IsObject } from 'class-validator';
+import { IsBoolean, IsString, IsOptional } from 'class-validator';
 
-export class WorksapcesRolesCreateDTO {
+export class WorkspacesRolesCreateDTO {
   @IsString()
   name: string;
 
