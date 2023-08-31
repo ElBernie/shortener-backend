@@ -29,7 +29,17 @@ export default class WorkspacesMembersController {
     @Req() req: Request,
     @Param('workspaceId') workspaceId: string,
   ) {
-    return this.workspacesMembersService.getWorkspaceMember(workspaceId);
+    return this.workspacesMembersService.getWorkspaceMembers(workspaceId);
+  }
+
+  @Permission('member')
+  @Get('/:workspaceId/members/:userId/role')
+  getMemberRole(@Param() params: { workspaceId: string; userId: string }) {
+    const { workspaceId, userId } = params;
+    return this.workspacesMembersService.getWorkspaceMemberRole(
+      workspaceId,
+      userId,
+    );
   }
 
   @Permission('workspaceMembersRemove')
