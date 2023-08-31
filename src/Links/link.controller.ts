@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -70,11 +71,14 @@ export default class LinksController {
 
   @Patch('/:linkId')
   @UseGuards(JwtAuthGuard)
-  updateLink(
+  async updateLink(
     @Request() req: RequestType,
     @Param('linkId') linkId: string,
     @Body() linkUpdateData: LinkUpdateDTO,
   ) {
+    const link = await this.linksService.getLinkById(linkId);
+    if (link.userId != req.user.userId) throw new ForbiddenException();
+
     return this.linksService.updateUrl(linkId, {
       alias: linkUpdateData.newAlias,
       url: linkUpdateData.url,
