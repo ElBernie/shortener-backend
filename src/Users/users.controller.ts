@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
@@ -27,10 +28,14 @@ export default class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/me/workspaces')
-  async getUserWorkspaces(@Req() request: Request) {
+  @Get('/:userId/workspaces')
+  async getUserWorkspaces(
+    @Req() request: Request,
+    @Param('userId') requestedUserId: string,
+  ) {
     const { userId } = request.user;
-    return this.usersService.getUserWorkspaces(userId);
+    if (requestedUserId != userId) throw new ForbiddenException();
+    return this.usersService.getUserWorkspaces(requestedUserId);
   }
 
   @UseGuards(JwtAuthGuard)

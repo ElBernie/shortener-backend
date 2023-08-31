@@ -25,16 +25,6 @@ export default class WorkspacesController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  getWorkspaces(@Req() req: Request) {
-    if (!req.user.userId) throw new UnauthorizedException();
-
-    return this.workspacesService.getWorkspaces({
-      userId: req.user.userId,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post()
   createWorkspace(@Req() req: Request, @Body() params: WorkspacesCreate) {
     if (!req.user.userId) throw new UnauthorizedException();

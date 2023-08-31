@@ -45,35 +45,6 @@ export default class WorkspacesService {
     });
   }
 
-  async getWorkspaces({ userId }: { userId: string }) {
-    return this.prismaService.workspace.findMany({
-      where: {
-        OR: [
-          {
-            ownerId: userId,
-          },
-          {
-            WorkspaceMembers: {
-              some: {
-                userId: userId,
-              },
-            },
-          },
-        ],
-      },
-      include: {
-        WorkspaceMembers: {
-          where: {
-            userId: userId,
-          },
-          include: {
-            role: true,
-          },
-        },
-      },
-    });
-  }
-
   async userHasPermission(
     userId: string,
     workspaceId: string,
