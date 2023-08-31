@@ -15,6 +15,7 @@ export enum WORKSPACE_PERMISSIONS {
    * Virtual permissions, not stored in DB
    */
   owner = 'owner',
+  member = 'member',
 
   /*
     Permissions stored in DB

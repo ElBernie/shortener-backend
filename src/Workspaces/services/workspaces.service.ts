@@ -98,9 +98,11 @@ export default class WorkspacesService {
     delete permissions.updatedAt;
     delete permissions.workspaceId;
 
-    return Object.entries(permissions as unknown as boolean[])
+    const permissionArray = Object.entries(permissions as unknown as boolean[])
       .filter((role) => role[1] !== false)
       .map((role) => role[0]);
+    permissionArray.push('member');
+    return permissionArray;
     //retour un array des permission du workspace que l'user a
   }
 }
