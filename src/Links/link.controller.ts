@@ -68,17 +68,15 @@ export default class LinksController {
     });
   }
 
-  @Patch('/:alias')
+  @Patch('/:linkId')
   @UseGuards(JwtAuthGuard)
   updateLink(
     @Request() req: RequestType,
-    @Param('alias') alias: string,
+    @Param('linkId') linkId: string,
     @Body() linkUpdateData: LinkUpdateDTO,
   ) {
-    return this.linksService.updateUrl({
-      user: req.user,
-      alias: alias,
-      newAlias: linkUpdateData.newAlias,
+    return this.linksService.updateUrl(linkId, {
+      alias: linkUpdateData.newAlias,
       url: linkUpdateData.url,
     });
   }

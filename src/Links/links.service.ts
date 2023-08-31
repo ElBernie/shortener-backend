@@ -8,31 +8,35 @@ import { PrismaService } from '../Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { JwtPayload } from 'src/Auth/JWT.strategy';
 import * as nanoid from 'nanoid';
+import { RequireAtLeastOne } from 'src/types';
 
 @Injectable()
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
 
-  async getLinkById(id: string) {
+  async getLinkById(id: string, options?: { include?: { url?: boolean } }) {
     const link = await this.prismaService.links.findUnique({
       where: {
         id: id,
       },
       include: {
-        URL: true,
+        ...(options.include.url && { URL: true }),
       },
     });
     if (!link) throw new NotFoundException();
     return link;
   }
 
-  async getLinkByAlias(alias: string) {
+  async getLinkByAlias(
+    alias: string,
+    options?: { include?: { url?: boolean } },
+  ) {
     const link = await this.prismaService.links.findUnique({
       where: {
         alias: alias,
       },
       include: {
-        URL: true,
+        ...(options.include.url && { URL: true }),
       },
     });
     if (!link) throw new NotFoundException();
@@ -126,48 +130,40 @@ export default class LinksService {
     });
   }
 
-  async updateUrl({
-    alias,
-    user,
-    newAlias,
-    url,
-  }: {
-    alias: string;
-    user: JwtPayload;
-    newAlias?: string;
-    url?: string;
-  }) {
-    if (!user.userId) throw new UnauthorizedException();
-
+  async updateUrl(
+    linkId: string,
+    data: RequireAtLeastOne<{
+      alias?: string;
+      url?: string;
+    }>,
+  ) {
     const currentUrl = await this.prismaService.links.findUnique({
-      where: { alias: alias },
+      where: { id: linkId },
     });
     if (!currentUrl) throw new NotFoundException();
-    if (currentUrl.userId != user.userId || currentUrl.userId == null)
-      throw new UnauthorizedException();
 
-    if (newAlias) {
+    if (data.alias) {
       const isNewAliasAlreadyTaken = await this.prismaService.links.findUnique({
-        where: { alias: newAlias },
+        where: { alias: data.alias },
       });
       if (isNewAliasAlreadyTaken) throw new ConflictException();
     }
 
-    const URLData = url ? new URL(url) : null;
+    const URLData = data.url ? new URL(data.url) : null;
     return this.prismaService.links.update({
       where: {
-        alias: alias,
+        id: linkId,
       },
       data: {
-        ...(newAlias && { alias: newAlias }),
+        ...(data.alias && { alias: data.alias }),
         ...(URLData && {
           URL: {
             connectOrCreate: {
               where: {
-                url: url,
+                url: data.url,
               },
               create: {
-                url: url,
+                url: data.url,
                 protocol: URLData.protocol,
                 pathname: URLData.pathname,
                 search: URLData.search,
