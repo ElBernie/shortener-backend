@@ -4,7 +4,9 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import WorkspacesService from './services/workspaces.service';
@@ -12,6 +14,7 @@ import WorkspacesMembersServices from './services/workspacesMembers.service';
 import InviteCreateDTO from './DTO/invite-create.dto';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import Permission from 'src/Auth/decorators/permission.decorator';
+import { Request } from 'src/types';
 
 @Controller('/workspaces')
 export default class WorkspacesMembersController {
@@ -21,9 +24,36 @@ export default class WorkspacesMembersController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
+  @Permission('member')
   @Get('/:workspaceId/members')
-  getMembers(@Param('workspaceId') workspaceId: string) {
-    return this.workspacesMembersService.getWorkspaceMember(workspaceId);
+  async getMembers(
+    @Req() req: Request,
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    return this.workspacesMembersService.getWorkspaceMembers(workspaceId);
+  }
+
+  @Permission('member')
+  @Get('/:workspaceId/members/:userId/role')
+  getMemberRole(@Param() params: { workspaceId: string; userId: string }) {
+    const { workspaceId, userId } = params;
+    return this.workspacesMembersService.getWorkspaceMemberRole(
+      workspaceId,
+      userId,
+    );
+  }
+
+  @Permission('workspaceMembersEdit')
+  @Patch('/:workspaceId/members/:userId/role')
+  updateMemberRole(
+    @Param() params: { workspaceId: string; userId: string; roleId: string },
+  ) {
+    const { workspaceId, userId, roleId } = params;
+    return this.workspacesMembersService.switchWorkspaceMemberRole(
+      workspaceId,
+      userId,
+      roleId,
+    );
   }
 
   @Permission('workspaceMembersRemove')

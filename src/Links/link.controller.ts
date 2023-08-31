@@ -1,7 +1,9 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   Param,
   Patch,
@@ -25,9 +27,14 @@ export default class LinksController {
     private workspacesService: WorkspacesService,
   ) {}
 
-  @Get('/:alias')
-  getLink(@Param('alias') alias: string) {
-    return this.linksService.getLinkByAlias(alias);
+  @Get('/:linkdId')
+  getLinkById(@Param('linkId') linkId: string) {
+    return this.linksService.getLinkById(linkId);
+  }
+
+  @Get('/alias/:alias')
+  getLinkByAlias(@Param('alias') alias: string) {
+    return this.linksService.getLinkByAlias(alias, { include: { url: true } });
   }
 
   @Post()
@@ -37,53 +44,61 @@ export default class LinksController {
     @Request() req: RequestType,
     @Body() linkCreationData: LinkCreationDTO,
   ) {
-    if (
-      !this.workspacesService.userHasPermission(
-        req.user.userId,
-        linkCreationData.workspace,
-        'linksCreate',
+    if (req.user.userId) {
+      if (!linkCreationData.workspaceId)
+        throw new BadRequestException('MISSING_WORKSPACE_ID');
+
+      if (
+        !this.workspacesService.userHasPermission(
+          req.user.userId,
+          linkCreationData.workspaceId,
+          'linksCreate',
+        )
       )
-    )
-      throw new UnauthorizedException();
-    if (req.user?.userId) {
+        throw new UnauthorizedException();
+
       return this.linksService.createUrl({
         linkData: linkCreationData,
-        user: req.user,
-        workspaceId: linkCreationData.workspace,
+        userId: req.user.userId,
+        workspaceId: linkCreationData.workspaceId,
+      });
+    } else {
+      const existingLink = await this.linksService.getLinkByUrl(
+        linkCreationData.url,
+      );
+      if (existingLink) return existingLink;
+
+      return this.linksService.createUrl({
+        linkData: linkCreationData,
       });
     }
-
-    const existingLink = await this.linksService.getLinkByUrl(
-      linkCreationData.url,
-    );
-    if (existingLink) return existingLink;
-
-    return this.linksService.createUrl({
-      linkData: linkCreationData,
-    });
   }
 
-  @Patch('/:alias')
+  @Patch('/:linkId')
   @UseGuards(JwtAuthGuard)
-  updateLink(
+  async updateLink(
     @Request() req: RequestType,
-    @Param('alias') alias: string,
+    @Param('linkId') linkId: string,
     @Body() linkUpdateData: LinkUpdateDTO,
   ) {
-    return this.linksService.updateUrl({
-      user: req.user,
-      alias: alias,
-      newAlias: linkUpdateData.newAlias,
+    const link = await this.linksService.getLinkById(linkId);
+    if (link.userId != req.user.userId) throw new ForbiddenException();
+
+    return this.linksService.updateUrl(linkId, {
+      alias: linkUpdateData.newAlias,
       url: linkUpdateData.url,
     });
   }
 
-  @Delete('/:alias')
+  @Delete('/:linkId')
   @UseGuards(JwtAuthGuard)
-  deleteLink(@Request() req: RequestType, @Param('alias') alias: string) {
-    return this.linksService.deleteUrl({
-      alias,
-      user: req.user,
-    });
+  async deleteLink(
+    @Request() req: RequestType,
+    @Param('linkId') linkId: string,
+  ) {
+    const link = await this.linksService.getLinkById(linkId);
+    if (link.userId != req.user.userId) throw new ForbiddenException();
+
+    return this.linksService.deleteUrl(linkId);
   }
 }

@@ -14,6 +14,19 @@ interface WorkspaceRoleCreate {
 export default class WorkspacesRolesService {
   constructor(private prisma: PrismaService) {}
 
+  async getWorkspaceRoles(workspaceId: string) {
+    const workspace = await this.prisma.workspace.findUnique({
+      where: {
+        id: workspaceId,
+      },
+    });
+
+    if (!workspace) throw new NotFoundException('WORKSPACE_NOT_FOUND');
+    return this.prisma.workspaceRoles.findMany({
+      where: { workspaceId: workspaceId },
+    });
+  }
+
   async createRole({
     workspaceId,
     name,

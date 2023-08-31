@@ -2,6 +2,7 @@ import {
   BadRequestException,
   CanActivate,
   ExecutionContext,
+  ForbiddenException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -35,7 +36,7 @@ export default class PermissionGuard implements CanActivate {
       requiredPermission,
     );
 
-    if (!userHasPermission) throw new UnauthorizedException();
+    if (!userHasPermission) throw new ForbiddenException();
     return true;
   }
 }

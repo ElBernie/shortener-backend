@@ -5,13 +5,17 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 
+interface GetUserOptions {
+  remove?: Array<keyof Omit<User, 'id' | 'password'>>;
+}
 @Injectable()
 export default class UsersService {
   constructor(private prismaService: PrismaService) {}
 
-  async getUser(userId: string) {
+  async getUser(userId: string, options?: GetUserOptions) {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: userId,
@@ -19,7 +23,7 @@ export default class UsersService {
     });
 
     if (!user) throw new NotFoundException();
-    delete user.email;
+    options.remove.forEach((key) => delete user[key]);
     delete user.password;
 
     return user;
@@ -88,10 +92,8 @@ export default class UsersService {
         default: true,
       },
     });
-    if (!defaultRole)
-      throw new ConflictException(
-        'NO_DEFAULT_ROLE',
-      ); /** @todo better error ? */
+    /** @todo better error ? */
+    if (!defaultRole) throw new ConflictException('NO_DEFAULT_ROLE');
 
     await this.prismaService.workspaceMembers.create({
       data: {
@@ -104,7 +106,6 @@ export default class UsersService {
     return this.prismaService.workspaceInvites.delete({
       where: { id: inviteId },
     });
-    // todo:get default role, create a new workspace member entry
   }
 
   async rejectInvite({

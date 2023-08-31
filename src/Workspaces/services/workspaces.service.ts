@@ -11,6 +11,11 @@ import { WORKSPACE_PERMISSIONS } from 'src/types';
 export default class WorkspacesService {
   constructor(private prismaService: PrismaService) {}
 
+  getWorkspace(workspaceId: string) {
+    return this.prismaService.workspace.findUnique({
+      where: { id: workspaceId },
+    });
+  }
   createWorkspace(userId: string, name: string) {
     if (!userId) throw new UnauthorizedException();
     return this.prismaService.workspace.create({
@@ -42,35 +47,6 @@ export default class WorkspacesService {
 
     return this.prismaService.workspace.delete({
       where: { id: workspaceId },
-    });
-  }
-
-  async getWorkspaces({ userId }: { userId: string }) {
-    return this.prismaService.workspace.findMany({
-      where: {
-        OR: [
-          {
-            ownerId: userId,
-          },
-          {
-            WorkspaceMembers: {
-              some: {
-                userId: userId,
-              },
-            },
-          },
-        ],
-      },
-      include: {
-        WorkspaceMembers: {
-          where: {
-            userId: userId,
-          },
-          include: {
-            role: true,
-          },
-        },
-      },
     });
   }
 
@@ -127,9 +103,11 @@ export default class WorkspacesService {
     delete permissions.updatedAt;
     delete permissions.workspaceId;
 
-    return Object.entries(permissions as unknown as boolean[])
+    const permissionArray = Object.entries(permissions as unknown as boolean[])
       .filter((role) => role[1] !== false)
       .map((role) => role[0]);
+    permissionArray.push('member');
+    return permissionArray;
     //retour un array des permission du workspace que l'user a
   }
 }

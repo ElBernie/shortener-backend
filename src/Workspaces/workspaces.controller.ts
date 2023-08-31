@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Req,
@@ -25,20 +26,17 @@ export default class WorkspacesController {
   ) {}
 
   @UseGuards(JwtAuthGuard)
-  @Get()
-  getWorkspaces(@Req() req: Request) {
-    if (!req.user.userId) throw new UnauthorizedException();
-
-    return this.workspacesService.getWorkspaces({
-      userId: req.user.userId,
-    });
-  }
-
-  @UseGuards(JwtAuthGuard)
   @Post()
   createWorkspace(@Req() req: Request, @Body() params: WorkspacesCreate) {
     if (!req.user.userId) throw new UnauthorizedException();
     return this.workspacesService.createWorkspace(req.user.userId, params.name);
+  }
+
+  @Get('/:workspaceId')
+  async getWorkspace(@Param('workspaceId') workspaceId: string) {
+    const workspace = await this.workspacesService.getWorkspace(workspaceId);
+    if (!workspace) throw new NotFoundException('WORKSPACE_NOT_FOUND');
+    return workspace;
   }
 
   @Permission('owner')
@@ -49,6 +47,12 @@ export default class WorkspacesController {
   ) {
     if (!req.user.userId) throw new UnauthorizedException();
     return this.workspacesService.deleteWorkspace(workspaceId, req.user.userId);
+  }
+
+  @Permission('member')
+  @Post('/:workspaceId/roles')
+  async getWorkspaceRoles(@Param('workspaceId') workspaceId: string) {
+    return this.workspacesRolesService.getWorkspaceRoles(workspaceId);
   }
 
   @Permission('workspaceEdit')

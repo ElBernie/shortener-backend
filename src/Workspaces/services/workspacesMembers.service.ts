@@ -11,7 +11,7 @@ import { PrismaService } from 'src/Prisma/prisma.service';
 export default class WorkspacesMembersServices {
   constructor(private prisma: PrismaService) {}
 
-  async getWorkspaceMember(workspaceId: string) {
+  async getWorkspaceMembers(workspaceId: string) {
     const workspaceOwner = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
 
@@ -37,6 +37,53 @@ export default class WorkspacesMembersServices {
         return users.user;
       }),
     };
+  }
+
+  async getWorkspaceMemberRole(workspaceId: string, userId: string) {
+    const workspaceMembership = await this.prisma.workspaceMembers.findFirst({
+      where: {
+        workspaceId: workspaceId,
+        userId: userId,
+      },
+      include: {
+        role: true,
+      },
+    });
+
+    if (!workspaceMembership) throw new NotFoundException();
+    return workspaceMembership;
+  }
+
+  async switchWorkspaceMemberRole(
+    workspaceId: string,
+    userId: string,
+    roleId: string,
+  ) {
+    const workspaceMembership = await this.prisma.workspaceMembers.findFirst({
+      where: {
+        userId: userId,
+        workspaceId: workspaceId,
+      },
+    });
+    if (!workspaceMembership) throw new NotFoundException();
+
+    const roleExists = await this.prisma.workspaceRoles.findFirst({
+      where: {
+        workspaceId: workspaceId,
+        id: roleId,
+      },
+    });
+    if (!roleExists) throw new NotFoundException();
+    if (workspaceMembership.roleId == roleId) throw new ConflictException();
+
+    return this.prisma.workspaceMembers.update({
+      where: {
+        id: workspaceMembership.id,
+      },
+      data: {
+        roleId: workspaceMembership.roleId,
+      },
+    });
   }
 
   async deleteWorkspaceMember(workspaceId: string, userId: string) {

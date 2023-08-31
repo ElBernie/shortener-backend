@@ -10,5 +10,5 @@ export default class LinkCreationDTO {
 
   @IsOptional()
   @IsString()
-  workspace: string;
+  workspaceId: string;
 }
