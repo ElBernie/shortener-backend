@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import Permission from 'src/Auth/decorators/permission.decorator';
-import { WorksapcesRolesCreateDTO } from './DTO/workpacesroles-create.dto';
+import { WorkspacesRolesCreateDTO } from './DTO/role-create';
 import WorkspacesRolesService from './services/workspacesRoles.service';
 
 @Controller('/:workspaceId/roles')
@@ -17,7 +17,7 @@ export default class WorkspacesRolesController {
   @Post('/')
   async createWorkspaceRole(
     @Param('workspaceId') workspaceId: string,
-    @Body() params: WorksapcesRolesCreateDTO,
+    @Body() params: WorkspacesRolesCreateDTO,
   ) {
     const { name, ...permissions } = params;
     return this.rolesService.createRole({
