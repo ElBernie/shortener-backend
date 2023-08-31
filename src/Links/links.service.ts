@@ -13,6 +13,19 @@ import * as nanoid from 'nanoid';
 export default class LinksService {
   constructor(private prismaService: PrismaService) {}
 
+  async getLinkById(id: string) {
+    const link = await this.prismaService.links.findUnique({
+      where: {
+        id: id,
+      },
+      include: {
+        URL: true,
+      },
+    });
+    if (!link) throw new NotFoundException();
+    return link;
+  }
+
   async getLinkByAlias(alias: string) {
     const link = await this.prismaService.links.findUnique({
       where: {

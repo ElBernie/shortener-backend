@@ -25,8 +25,13 @@ export default class LinksController {
     private workspacesService: WorkspacesService,
   ) {}
 
-  @Get('/:alias')
-  getLink(@Param('alias') alias: string) {
+  @Get('/:linkdId')
+  getLinkById(@Param('linkId') linkId: string) {
+    return this.linksService.getLinkById(linkId);
+  }
+  
+  @Get('/alias/:alias')
+  getLinkByAlias(@Param('alias') alias: string) {
     return this.linksService.getLinkByAlias(alias);
   }
 
