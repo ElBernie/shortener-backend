@@ -4,6 +4,7 @@ import {
   ForbiddenException,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   UseGuards,
@@ -50,16 +51,19 @@ export default class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/me/invites/:inviteId')
+  @Patch('/:userId/invites/:inviteId')
   async inviteAction(
     @Req() request: Request,
+    @Param('userId') requestedUserId: string,
     @Param('inviteId') inviteId: string,
     @Body() action: InvitesActionDTO,
   ) {
     const { userId } = request.user;
+
+    if (requestedUserId != userId) throw new ForbiddenException();
     const payload = {
       inviteId,
-      userId,
+      userId: requestedUserId,
     };
 
     return action.action === 'ACCEPT'
