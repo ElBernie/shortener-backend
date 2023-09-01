@@ -1,14 +1,15 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
 import Permission from 'src/Auth/decorators/permission.decorator';
 import { WorkspacesRolesCreateDTO } from './DTO/role-create';
 import WorkspacesRolesService from './services/workspacesRoles.service';
+import RoleUpdateDTO from './DTO/role-update.dtos';
 
-@Controller('/:workspaceId/roles')
+@Controller('/workspaces/:workspaceId/roles')
 export default class WorkspacesRolesController {
   constructor(private rolesService: WorkspacesRolesService) {}
 
   @Permission('member')
-  @Get('/:workspaceId/roles')
+  @Get('/')
   async getWorkspaceRoles(@Param('workspaceId') workspaceId: string) {
     return this.rolesService.getWorkspaceRoles(workspaceId);
   }
@@ -25,5 +26,16 @@ export default class WorkspacesRolesController {
       name: name,
       permissions: permissions,
     });
+  }
+
+  @Permission('workspaceEdit')
+  @Patch('/:roleId')
+  async updateRole(
+    @Param('workspaceId') workspaceId: string,
+    @Param('roleId') roleId: string,
+    @Body() updateData: RoleUpdateDTO,
+  ) {
+    const { name, permissions } = updateData;
+    return this.rolesService.updateRole(roleId, { name }, permissions);
   }
 }

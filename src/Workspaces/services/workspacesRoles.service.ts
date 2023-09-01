@@ -1,6 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { WorkspaceRoles } from '@prisma/client';
+
 import { PrismaService } from 'src/Prisma/prisma.service';
-import { WorkspacesRolePermissions } from 'src/types';
+import { WORKSPACE_PERMISSIONS, WorkspacesRolePermissions } from 'src/types';
 
 interface WorkspaceRoleCreate {
   workspaceId: string;
@@ -48,6 +50,31 @@ export default class WorkspacesRolesService {
         name: name,
         default: defaultRole,
         deletable: deletable,
+        ...permissions,
+      },
+    });
+  }
+
+  async updateRole(
+    roleId: string,
+    settings: Partial<{
+      name: string;
+      deletable: boolean;
+      default: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    }>,
+    permissions: Omit<WorkspacesRolePermissions, 'owner' | 'member'>,
+  ) {
+    const role = await this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+    });
+    if (!role) throw new NotFoundException();
+
+    return this.prisma.workspaceRoles.update({
+      where: { id: roleId },
+      data: {
+        ...settings,
         ...permissions,
       },
     });
