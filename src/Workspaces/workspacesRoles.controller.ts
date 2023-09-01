@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   NotFoundException,
@@ -58,6 +59,21 @@ export default class WorkspacesRolesController {
     @Body() updateData: RoleUpdateDTO,
   ) {
     const { name, permissions } = updateData;
+    const role = await this.rolesService.getRole(roleId);
+    if (!role) throw new NotFoundException();
+    if (role.workspaceId != workspaceId) throw new ForbiddenException();
     return this.rolesService.updateRole(roleId, { name }, permissions);
+  }
+
+  @Permission('workspaceEdit')
+  @Delete('/:roleId')
+  async deleteRole(
+    @Param('workspaceId') workspaceId: string,
+    @Param('roleId') roleId: string,
+  ) {
+    const role = await this.rolesService.getRole(roleId);
+    if (!role) throw new NotFoundException();
+    if (role.workspaceId != workspaceId) throw new ForbiddenException();
+    return this.rolesService.deleteRole(roleId);
   }
 }

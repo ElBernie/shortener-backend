@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
 import { WorkspacesRolePermissions } from 'src/types';
 
@@ -86,6 +90,22 @@ export default class WorkspacesRolesService {
       data: {
         ...settings,
         ...permissions,
+      },
+    });
+  }
+
+  async deleteRole(roleId: string) {
+    const role = await this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) throw new NotFoundException();
+    if (!role.deletable) throw new ForbiddenException('ROLE_NOT_DELETABLE');
+    if (role.default) throw new ForbiddenException('ROLE_IS_DEFAULT');
+
+    return this.prisma.workspaceRoles.delete({
+      where: {
+        id: roleId,
       },
     });
   }
