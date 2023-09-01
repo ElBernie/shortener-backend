@@ -8,9 +8,11 @@ import WorkspacesMembersServices from './services/workspacesMembers.service';
 import LinksModule from 'src/Links/links.module';
 import LinksService from 'src/Links/links.service';
 import WorkspacesRolesController from './workspacesRoles.controller';
+import UsersModule from 'src/Users/users.module';
+import UsersService from 'src/Users/users.service';
 
 @Module({
-  imports: [LinksModule],
+  imports: [LinksModule, UsersModule],
   controllers: [
     WorkspacesController,
     WorkspacesRolesController,
@@ -22,6 +24,7 @@ import WorkspacesRolesController from './workspacesRoles.controller';
     WorkspacesRolesService,
     WorkspacesMembersServices,
     LinksService,
+    UsersService,
   ],
   exports: [WorkspacesService],
 })

@@ -1,5 +1,6 @@
 import {
   Body,
+  ConflictException,
   Controller,
   Delete,
   Get,
@@ -7,6 +8,7 @@ import {
   Patch,
   Post,
   Req,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import WorkspacesService from './services/workspaces.service';
@@ -15,12 +17,14 @@ import InviteCreateDTO from './DTO/invite-create.dto';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import Permission from 'src/Auth/decorators/permission.decorator';
 import { Request } from 'src/types';
+import UsersService from 'src/Users/users.service';
 
 @Controller('/workspaces')
 export default class WorkspacesMembersController {
   constructor(
     private worksspacesService: WorkspacesService,
     private workspacesMembersService: WorkspacesMembersServices,
+    private usersService: UsersService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -73,7 +77,16 @@ export default class WorkspacesMembersController {
 
   @Permission('workspaceMembersInvite')
   @Post('/:workspaceId/invites')
-  createInvite(@Body() inviteCreate: InviteCreateDTO) {
+  async createInvite(
+    @Req() req: Request,
+    @Body() inviteCreate: InviteCreateDTO,
+  ) {
+    const invitingUser = await this.usersService.getUser(req.user.userId);
+    if (!invitingUser) throw new UnauthorizedException();
+
+    if (inviteCreate.email == invitingUser.email)
+      throw new ConflictException('USER_CANT_INVITE_HIMSELFT');
+    
     return this.workspacesMembersService.inviteMember(
       inviteCreate.workspaceId,
       inviteCreate.email,

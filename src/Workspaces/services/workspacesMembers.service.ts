@@ -115,7 +115,8 @@ export default class WorkspacesMembersServices {
         email: email,
       },
     });
-    if (inviteAlreadyExists) throw new ConflictException();
+    if (inviteAlreadyExists)
+      throw new ConflictException('USER_ALREADY_INVITED');
 
     const user = await this.prisma.user.findUnique({
       where: { email: email },
