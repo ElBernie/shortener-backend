@@ -27,6 +27,18 @@ export default class WorkspacesRolesService {
     });
   }
 
+  async getRole(
+    roleId: string,
+    options?: {
+      include?: { workspace?: boolean; members?: boolean };
+    },
+  ) {
+    return this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+      include: options.include,
+    });
+  }
+
   async createRole({
     workspaceId,
     name,

@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  ForbiddenException,
+  Get,
+  NotFoundException,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import Permission from 'src/Auth/decorators/permission.decorator';
 import { WorkspacesRolesCreateDTO } from './DTO/role-create';
 import WorkspacesRolesService from './services/workspacesRoles.service';
@@ -12,6 +21,19 @@ export default class WorkspacesRolesController {
   @Get('/')
   async getWorkspaceRoles(@Param('workspaceId') workspaceId: string) {
     return this.rolesService.getWorkspaceRoles(workspaceId);
+  }
+
+  @Permission('workspaceEdit')
+  @Get('/:roleId')
+  async getWorkspaceRole(
+    @Param('roleId') roleId: string,
+    @Param('workspaceId') workspaceId: string,
+  ) {
+    const role = await this.rolesService.getRole(roleId);
+    if (!role) throw new NotFoundException();
+    if (role.workspaceId != workspaceId) throw new ForbiddenException();
+
+    return role;
   }
 
   @Permission('workspaceEdit')
