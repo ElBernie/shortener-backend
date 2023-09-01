@@ -39,9 +39,13 @@ export default class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/me/invites')
-  async getUserInvites(@Req() request: Request) {
+  @Get('/:userId/invites')
+  async getUserInvites(
+    @Req() request: Request,
+    @Param('userId') requestedUserId: string,
+  ) {
     const { userId } = request.user;
+    if (requestedUserId != userId) throw new ForbiddenException();
     return this.usersService.getUserInvites(userId);
   }
 
