@@ -54,6 +54,7 @@ model WorkspaceMembers {
 }
 
 model WorkspaceRoles {
+  
   id        String  @id @default(uuid())
   name      String
   deletable Boolean @default(true)

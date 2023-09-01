@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
 import { WorkspacesRolePermissions } from 'src/types';
 
@@ -27,6 +31,18 @@ export default class WorkspacesRolesService {
     });
   }
 
+  async getRole(
+    roleId: string,
+    options?: {
+      include?: { workspace?: boolean; members?: boolean };
+    },
+  ) {
+    return this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+      include: options.include,
+    });
+  }
+
   async createRole({
     workspaceId,
     name,
@@ -49,6 +65,47 @@ export default class WorkspacesRolesService {
         default: defaultRole,
         deletable: deletable,
         ...permissions,
+      },
+    });
+  }
+
+  async updateRole(
+    roleId: string,
+    settings: Partial<{
+      name: string;
+      deletable: boolean;
+      default: boolean;
+      createdAt: Date;
+      updatedAt: Date;
+    }>,
+    permissions: Omit<WorkspacesRolePermissions, 'owner' | 'member'>,
+  ) {
+    const role = await this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+    });
+    if (!role) throw new NotFoundException();
+
+    return this.prisma.workspaceRoles.update({
+      where: { id: roleId },
+      data: {
+        ...settings,
+        ...permissions,
+      },
+    });
+  }
+
+  async deleteRole(roleId: string) {
+    const role = await this.prisma.workspaceRoles.findUnique({
+      where: { id: roleId },
+    });
+
+    if (!role) throw new NotFoundException();
+    if (!role.deletable) throw new ForbiddenException('ROLE_NOT_DELETABLE');
+    if (role.default) throw new ForbiddenException('ROLE_IS_DEFAULT');
+
+    return this.prisma.workspaceRoles.delete({
+      where: {
+        id: roleId,
       },
     });
   }

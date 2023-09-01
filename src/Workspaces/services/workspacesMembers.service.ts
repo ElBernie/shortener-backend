@@ -102,6 +102,14 @@ export default class WorkspacesMembersServices {
     });
   }
 
+  async getInvite(inviteId: string) {
+    return this.prisma.workspaceInvites.findUnique({
+      where: {
+        id: inviteId,
+      },
+    });
+  }
+
   async inviteMember(workspaceId: string, email: string) {
     const workspace = await this.prisma.workspace.findUnique({
       where: { id: workspaceId },
@@ -115,7 +123,8 @@ export default class WorkspacesMembersServices {
         email: email,
       },
     });
-    if (inviteAlreadyExists) throw new ConflictException();
+    if (inviteAlreadyExists)
+      throw new ConflictException('USER_ALREADY_INVITED');
 
     const user = await this.prisma.user.findUnique({
       where: { email: email },
@@ -176,5 +185,18 @@ export default class WorkspacesMembersServices {
        */
       return userInvite;
     }
+  }
+
+  async deleteInvite(inviteId) {
+    const invite = await this.prisma.workspaceInvites.findUnique({
+      where: { id: inviteId },
+    });
+    if (!invite) throw new NotFoundException('INVITE_NOT_FOUND');
+
+    return this.prisma.workspaceInvites.delete({
+      where: {
+        id: inviteId,
+      },
+    });
   }
 }

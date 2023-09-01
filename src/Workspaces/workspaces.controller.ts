@@ -15,16 +15,13 @@ import WorkspacesService from './services/workspaces.service';
 import WorkspacesCreate from 'src/Workspaces/DTO/workspaces-create.dto';
 import { Request } from 'src/types';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
-
 import Permission from 'src/Auth/decorators/permission.decorator';
-import WorkspacesRolesService from './services/workspacesRoles.service';
 import LinksService from 'src/Links/links.service';
 
 @Controller('/workspaces')
 export default class WorkspacesController {
   constructor(
     private workspacesService: WorkspacesService,
-    private workspacesRolesService: WorkspacesRolesService,
     private linksService: LinksService,
   ) {}
 

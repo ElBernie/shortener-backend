@@ -4,7 +4,7 @@ import {
   ForbiddenException,
   Get,
   Param,
-  Post,
+  Patch,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -39,23 +39,30 @@ export default class UsersController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Get('/me/invites')
-  async getUserInvites(@Req() request: Request) {
+  @Get('/:userId/invites')
+  async getUserInvites(
+    @Req() request: Request,
+    @Param('userId') requestedUserId: string,
+  ) {
     const { userId } = request.user;
+    if (requestedUserId != userId) throw new ForbiddenException();
     return this.usersService.getUserInvites(userId);
   }
 
   @UseGuards(JwtAuthGuard)
-  @Post('/me/invites/:inviteId')
+  @Patch('/:userId/invites/:inviteId')
   async inviteAction(
     @Req() request: Request,
+    @Param('userId') requestedUserId: string,
     @Param('inviteId') inviteId: string,
     @Body() action: InvitesActionDTO,
   ) {
     const { userId } = request.user;
+
+    if (requestedUserId != userId) throw new ForbiddenException();
     const payload = {
       inviteId,
-      userId,
+      userId: requestedUserId,
     };
 
     return action.action === 'ACCEPT'
