@@ -3,7 +3,9 @@ import {
   ConflictException,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
@@ -76,6 +78,19 @@ export default class WorkspacesMembersController {
   }
 
   @Permission('workspaceMembersInvite')
+  @Get('/:workspaceId/invites/:inviteId')
+  async getInvite(
+    @Param('workspaceId') workspaceId: string,
+    @Param('inviteId') inviteId: string,
+  ) {
+    const invite = await this.workspacesMembersService.getInvite(inviteId);
+    if (!invite) throw new NotFoundException('INVITE_NOT_FOUND');
+    if (invite.workspaceId != workspaceId) throw new ForbiddenException();
+
+    return invite;
+  }
+
+  @Permission('workspaceMembersInvite')
   @Post('/:workspaceId/invites')
   async createInvite(
     @Req() req: Request,
@@ -85,11 +100,24 @@ export default class WorkspacesMembersController {
     if (!invitingUser) throw new UnauthorizedException();
 
     if (inviteCreate.email == invitingUser.email)
-      throw new ConflictException('USER_CANT_INVITE_HIMSELFT');
-    
+      throw new ConflictException('USER_CANT_INVITE_HIMSELF');
+
     return this.workspacesMembersService.inviteMember(
       inviteCreate.workspaceId,
       inviteCreate.email,
     );
+  }
+
+  @Permission('workspaceMembersInvite')
+  @Delete('/:workspaceId/invite/:inviteId')
+  async deleteInvite(
+    @Param('workspaceId') workspaceId: string,
+    @Param('inviteId') inviteId: string,
+  ) {
+    const invite = await this.workspacesMembersService.getInvite(inviteId);
+    if (!invite) throw new NotFoundException('INVITE_NOT_FOUND');
+    if (invite.workspaceId != workspaceId) throw new ForbiddenException();
+
+    return this.workspacesMembersService.deleteInvite(inviteId);
   }
 }
