@@ -1,8 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { WorkspaceRoles } from '@prisma/client';
-
 import { PrismaService } from 'src/Prisma/prisma.service';
-import { WORKSPACE_PERMISSIONS, WorkspacesRolePermissions } from 'src/types';
+import { WorkspacesRolePermissions } from 'src/types';
 
 interface WorkspaceRoleCreate {
   workspaceId: string;
