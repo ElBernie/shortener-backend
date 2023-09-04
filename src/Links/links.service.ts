@@ -7,6 +7,7 @@ import { PrismaService } from '../Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import * as nanoid from 'nanoid';
 import { RequireAtLeastOne } from 'src/types';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export default class LinksService {
@@ -17,9 +18,11 @@ export default class LinksService {
       workspaceId: string;
       userId: string;
     }>;
+    include?: Prisma.LinksInclude;
   }) {
     return this.prismaService.links.findMany({
       where: params.where,
+      include: params.include,
     });
   }
 
