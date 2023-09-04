@@ -7,6 +7,7 @@ import {
   NotFoundException,
   Param,
   Post,
+  Query,
   Req,
   UnauthorizedException,
   UseGuards,
@@ -54,8 +55,13 @@ export default class WorkspacesController {
   async getWorkspaceLinks(
     @Req() req: Request,
     @Param('workspaceId') workspaceId: string,
+    @Query()
+    query: { [key: string]: string },
   ) {
+    console.log(query);
     const { userId } = req.user;
+    const includeList = query.include ? query.include.split(',') : [];
+    console.log('includeList', includeList);
     const usersPermissions =
       await this.workspacesService.getWorkspacePermissionsForUser(
         userId,
@@ -63,23 +69,34 @@ export default class WorkspacesController {
       );
 
     if (
-      !usersPermissions.includes('linksView') ||
-      !usersPermissions.includes('linksViewOwn') ||
-      !usersPermissions.includes('owner')
+      !(
+        !usersPermissions.includes('linksView') ||
+        !usersPermissions.includes('linksViewOwn') ||
+        !usersPermissions.includes('*')
+      )
     )
       throw new ForbiddenException();
 
     if (
       usersPermissions.includes('linksView') ||
-      usersPermissions.includes('owner')
+      usersPermissions.includes('*')
     )
       // linksView // linksViewOwn// owner
       return this.linksService.getLinks({
         where: { workspaceId: workspaceId },
+        include: {
+          ...(includeList.includes('URL') && { URL: true }),
+          ...(includeList.includes('workspace') && { workspace: true }),
+          ...(includeList.includes('domain') && { Domain: true }),
+          ...(includeList.includes('user') && { user: true }),
+        },
       });
 
     return this.linksService.getLinks({
       where: { workspaceId: workspaceId, userId: userId },
+      include: {
+        ...(includeList.includes('URL') && { URL: true }),
+      },
     });
   }
 
