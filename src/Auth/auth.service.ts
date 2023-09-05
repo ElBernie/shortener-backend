@@ -10,12 +10,14 @@ import { RegisterDTO } from './DTO/register.dto';
 import * as bcrypt from 'bcrypt';
 import LoginDTO from './DTO/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export default class AuthService {
   constructor(
     private prismaService: PrismaService,
     private jwtService: JwtService,
+    private emailService: MailerService,
   ) {}
 
   async register(userData: RegisterDTO) {
@@ -38,6 +40,18 @@ export default class AuthService {
 
       delete createUser.email;
       delete createUser.password;
+
+      this.emailService.sendMail({
+        from: process.env.DEFAULT_FROM_EMAIL,
+        to: userData.email,
+        template: 'emailValidation',
+        subject: 'Confirmez votre compte Sun.bzh',
+
+        context: {
+          validationLink: `${process.env.WEBSITE_URL}/auth/validate/${createUser.validationToken}`,
+        },
+      });
+
       return createUser;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -69,5 +83,25 @@ export default class AuthService {
     const payload = {};
     const token = this.jwtService.sign(payload, { subject: user.id });
     return { access_token: token, defaultWorkspace: defaultWorkspace[0] };
+  }
+
+  async validate(validationToken: string) {
+    const user = await this.prismaService.user.findFirst({
+      where: {
+        validationToken: validationToken,
+      },
+    });
+
+    if (!user) throw new NotFoundException();
+
+    await this.prismaService.user.update({
+      where: { id: user.id },
+      data: {
+        validated: true,
+        validationToken: null,
+      },
+    });
+
+    return { email: user.email };
   }
 }
