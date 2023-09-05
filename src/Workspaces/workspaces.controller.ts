@@ -58,10 +58,9 @@ export default class WorkspacesController {
     @Query()
     query: { [key: string]: string },
   ) {
-    console.log(query);
     const { userId } = req.user;
     const includeList = query.include ? query.include.split(',') : [];
-    console.log('includeList', includeList);
+
     const usersPermissions =
       await this.workspacesService.getWorkspacePermissionsForUser(
         userId,
@@ -96,6 +95,9 @@ export default class WorkspacesController {
       where: { workspaceId: workspaceId, userId: userId },
       include: {
         ...(includeList.includes('URL') && { URL: true }),
+        ...(includeList.includes('workspace') && { workspace: true }),
+        ...(includeList.includes('domain') && { Domain: true }),
+        ...(includeList.includes('user') && { user: true }),
       },
     });
   }
