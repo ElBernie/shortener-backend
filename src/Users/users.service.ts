@@ -23,7 +23,7 @@ export default class UsersService {
     });
 
     if (!user) throw new NotFoundException();
-    options.remove.forEach((key) => delete user[key]);
+    if (options) options.remove.forEach((key) => delete user[key]);
     delete user.password;
 
     return user;
