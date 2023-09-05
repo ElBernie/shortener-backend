@@ -20,6 +20,7 @@ import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import Permission from 'src/Auth/decorators/permission.decorator';
 import { Request } from 'src/types';
 import UsersService from 'src/Users/users.service';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Controller('/workspaces')
 export default class WorkspacesMembersController {
@@ -27,6 +28,7 @@ export default class WorkspacesMembersController {
     private worksspacesService: WorkspacesService,
     private workspacesMembersService: WorkspacesMembersServices,
     private usersService: UsersService,
+    private emailService: MailerService,
   ) {}
 
   @UseGuards(JwtAuthGuard)
@@ -95,12 +97,37 @@ export default class WorkspacesMembersController {
   async createInvite(
     @Req() req: Request,
     @Body() inviteCreate: InviteCreateDTO,
+    @Param('workspaceId') workspaceId: string,
   ) {
     const invitingUser = await this.usersService.getUser(req.user.userId);
     if (!invitingUser) throw new UnauthorizedException();
 
     if (inviteCreate.email == invitingUser.email)
       throw new ConflictException('USER_CANT_INVITE_HIMSELF');
+
+    const workspace = await this.worksspacesService.getWorkspace(workspaceId);
+    if (!workspace) throw new NotFoundException('WORKSPACE_NOT_FOUND');
+    if (
+      !this.worksspacesService.userHasPermission(
+        req.user.userId,
+        workspaceId,
+        'workspaceMembersInvite',
+      )
+    )
+      throw new ForbiddenException();
+
+    this.emailService.sendMail({
+      from: process.env.DEFAULT_FROM_EMAIL,
+      to: inviteCreate.email,
+      template: 'workspaceInvite',
+      subject: 'Un nouvel équipage vous attends !',
+
+      context: {
+        inviterUsername: invitingUser.email,
+        workspaceName: workspace.name,
+        accepteInviteLink: `${process.env.WEBSITE_URL}/dashboard/invites`,
+      },
+    });
 
     return this.workspacesMembersService.inviteMember(
       inviteCreate.workspaceId,

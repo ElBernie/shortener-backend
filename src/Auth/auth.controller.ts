@@ -1,4 +1,4 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { RegisterDTO } from './DTO/register.dto';
 import AuthService from './auth.service';
 import LoginDTO from './DTO/login.dto';
@@ -15,5 +15,10 @@ export default class AuthController {
   @Post('/login')
   logUser(@Body() userLoginData: LoginDTO) {
     return this.authService.login(userLoginData);
+  }
+
+  @Get('/validate/:validationToken')
+  validateAccount(@Param('validationToken') validationToken: string) {
+    return this.authService.validate(validationToken);
   }
 }
