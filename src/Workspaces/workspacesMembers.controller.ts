@@ -125,7 +125,7 @@ export default class WorkspacesMembersController {
       context: {
         inviterUsername: invitingUser.email,
         workspaceName: workspace.name,
-        accepteInviteLink: `${process.env.WEBSITE_URL}/dahsboard/invites`,
+        accepteInviteLink: `${process.env.WEBSITE_URL}/dashboard/invites`,
       },
     });
 
