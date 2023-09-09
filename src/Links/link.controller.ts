@@ -5,9 +5,11 @@ import {
   Delete,
   ForbiddenException,
   Get,
+  NotFoundException,
   Param,
   Patch,
   Post,
+  Req,
   Request,
   UnauthorizedException,
   UseGuards,
@@ -19,13 +21,20 @@ import JwtAuthGuard from '../Auth/guards/JWT.guard';
 import { Request as RequestType } from '../types';
 import LinkUpdateDTO from './DTO/link-update.dto';
 import WorkspacesService from 'src/Workspaces/services/workspaces.service';
+import { InfluxClientService } from '@sunbzh/nest-influx';
+import { Point, WriteApi } from '@influxdata/influxdb-client';
+import RegisterHitDTO from './DTO/stats-register-hit.dto';
 
 @Controller('links')
 export default class LinksController {
+  private influxWrite: WriteApi;
   constructor(
     private linksService: LinksService,
     private workspacesService: WorkspacesService,
-  ) {}
+    private influxService: InfluxClientService,
+  ) {
+    this.influxWrite = this.influxService.getWriteApi('sunbzh', 'links');
+  }
 
   @Get('/:linkdId')
   getLinkById(@Param('linkId') linkId: string) {
@@ -100,5 +109,29 @@ export default class LinksController {
     if (link.userId != req.user.userId) throw new ForbiddenException();
 
     return this.linksService.deleteUrl(linkId);
+  }
+
+  @Post('/:linkId/stats')
+  async registerHit(
+    @Param('linkId') linkId: string,
+    @Body() hitData: RegisterHitDTO,
+  ) {
+    const link = await this.linksService.getLinkById(linkId);
+    if (!link) throw new NotFoundException();
+
+    const hitPoint = new Point('linkHit')
+      .tag('linkId', linkId)
+      .tag('workspaceId', link.workspaceId)
+      .tag('URLId', link.URLId)
+      .tag('host', link.host);
+
+    console.log('hitdata', hitData);
+    Object.entries(hitData).forEach((data) => {
+      if (data[0] == 'lat' || data[0] == 'lon')
+        hitPoint.floatField(data[0], data[1]);
+      hitPoint.stringField(data[0], data[1]);
+    });
+
+    return this.influxWrite.writePoint(hitPoint);
   }
 }
