@@ -32,7 +32,7 @@ export default class LinksService {
         id: id,
       },
       include: {
-        ...(options.include.url && { URL: true }),
+        ...(options?.include?.url && { URL: true }),
       },
     });
     if (!link) throw new NotFoundException();
