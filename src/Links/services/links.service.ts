@@ -3,8 +3,8 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { PrismaService } from '../Prisma/prisma.service';
-import LinkCreationDTO from './DTO/link-creation.dto';
+import { PrismaService } from '../../Prisma/prisma.service';
+import LinkCreationDTO from '../DTO/link-creation.dto';
 import * as nanoid from 'nanoid';
 import { RequireAtLeastOne } from 'src/types';
 import { Prisma } from '@prisma/client';
@@ -32,7 +32,7 @@ export default class LinksService {
         id: id,
       },
       include: {
-        ...(options.include.url && { URL: true }),
+        ...(options?.include?.url && { URL: true }),
       },
     });
     if (!link) throw new NotFoundException();

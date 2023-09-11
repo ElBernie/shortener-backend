@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import LinksController from './link.controller';
-import LinksService from './links.service';
+import LinksService from './services/links.service';
 import { PrismaService } from '../Prisma/prisma.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { Request } from 'src/types';
