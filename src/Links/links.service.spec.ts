@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { v4 as uuid } from 'uuid';
-import LinksService from './links.service';
+import LinksService from './services/links.service';
 import { PrismaService } from '../Prisma/prisma.service';
 import { NotFoundException, UnauthorizedException } from '@nestjs/common';
 

@@ -14,7 +14,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
-import LinksService from './links.service';
+import LinksService from './services/links.service';
 import LinkCreationDTO from './DTO/link-creation.dto';
 import { AllowAnonymous } from '../Auth/decorators/allowanonymous.decorator';
 import JwtAuthGuard from '../Auth/guards/JWT.guard';
