@@ -24,6 +24,7 @@ import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 import { InfluxClientService } from '@sunbzh/nest-influx';
 import { Point, WriteApi } from '@influxdata/influxdb-client';
 import RegisterHitDTO from './DTO/stats-register-hit.dto';
+import LinksStatsService from './services/links-stats.service';
 
 @Controller('links')
 export default class LinksController {
@@ -32,6 +33,7 @@ export default class LinksController {
     private linksService: LinksService,
     private workspacesService: WorkspacesService,
     private influxService: InfluxClientService,
+    private linksStatsService: LinksStatsService,
   ) {
     this.influxWrite = this.influxService.getWriteApi('sunbzh', 'links');
   }
@@ -111,6 +113,12 @@ export default class LinksController {
     return this.linksService.deleteUrl(linkId);
   }
 
+  @Get('/:linkId/stats')
+  async getLinkStats(@Param('linkId') linkId: string) {
+    return this.linksStatsService.getLinkStats(linkId, {
+      includes: { langs: true },
+    });
+  }
   @Post('/:linkId/stats')
   async registerHit(
     @Param('linkId') linkId: string,
@@ -125,7 +133,6 @@ export default class LinksController {
       .tag('URLId', link.URLId)
       .tag('host', link.host);
 
-    console.log('hitdata', hitData);
     Object.entries(hitData).forEach((data) => {
       if (data[0] == 'lat' || data[0] == 'lon')
         hitPoint.floatField(data[0], data[1]);
