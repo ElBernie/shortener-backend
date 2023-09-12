@@ -66,7 +66,7 @@ export default class LinksService {
     });
   }
 
-  createUrl({
+  async createUrl({
     linkData,
     userId,
     workspaceId,
@@ -76,6 +76,7 @@ export default class LinksService {
     workspaceId?: string;
   }) {
     const URLData = new URL(linkData.url);
+    const pageTitle = await this.fetchPageTitle(linkData.url);
 
     const alias =
       linkData.alias ||
@@ -108,6 +109,7 @@ export default class LinksService {
             },
             create: {
               url: linkData.url,
+              title: pageTitle,
               protocol: URLData.protocol,
               pathname: URLData.pathname,
               search: URLData.search,
@@ -220,4 +222,15 @@ export default class LinksService {
       },
     });
   }
+
+  fetchPageTitle = async (url: string) => {
+    const request = await fetch(url);
+    if (!request.ok) return null; /** @todo better handle */
+    const body = await request.text();
+    if (!request.body) return null;
+
+    const match = RegExp(/<title>([^<]*)<\/title>/).exec(body);
+    if (!match || typeof match[1] !== 'string') return null;
+    return match[1];
+  };
 }
