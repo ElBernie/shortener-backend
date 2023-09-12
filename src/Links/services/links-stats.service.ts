@@ -1,6 +1,9 @@
-import { QueryApi } from '@influxdata/influxdb-client';
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InfluxClientService } from '@sunbzh/nest-influx';
+import { Point, WriteApi, QueryApi } from '@influxdata/influxdb-client';
+import LinksService from './links.service';
+import RegisterHitDTO from '../DTO/stats-register-hit.dto';
+import { PrismaService } from 'src/Prisma/prisma.service';
 
 interface GetLinkStatsOptions {
   includes?: {
@@ -11,10 +14,56 @@ interface GetLinkStatsOptions {
 @Injectable()
 export default class LinksStatsService {
   private influxQuery: QueryApi;
-  constructor(private influx: InfluxClientService) {
+  private influxWrite: WriteApi;
+  constructor(
+    private prisma: PrismaService,
+    private influx: InfluxClientService,
+    private linksService: LinksService,
+  ) {
     this.influxQuery = this.influx.getQueryApi('sunbzh');
+    this.influxWrite = this.influx.getWriteApi('sunbzh', 'links');
   }
 
+  async registerHit(linkId: string, hitData: RegisterHitDTO) {
+    const link = await this.linksService.getLinkById(linkId);
+    if (!link) throw new NotFoundException();
+
+    const hitPoint = new Point('linkHit')
+      .tag('linkId', linkId)
+      .tag('workspaceId', link.workspaceId)
+      .tag('URLId', link.URLId)
+      .tag('host', link.host);
+
+    Object.entries(hitData).forEach((data) => {
+      if (data[0] == 'lat' || data[0] == 'lon')
+        hitPoint.floatField(data[0], data[1]);
+      hitPoint.stringField(data[0], data[1]);
+    });
+    this.influxWrite.writePoint(hitPoint);
+
+    return this.prisma.links.update({
+      where: { id: link.id },
+      data: {
+        hits: {
+          increment: 1,
+        },
+        URL: {
+          update: {
+            hits: {
+              increment: 1,
+            },
+          },
+        },
+        Domain: {
+          update: {
+            hits: {
+              increment: 1,
+            },
+          },
+        },
+      },
+    });
+  }
   async getLinkStats(linkId: string, options: GetLinkStatsOptions) {
     let visits: number;
     if (options.includes.visits) {
