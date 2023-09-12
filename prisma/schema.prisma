@@ -102,7 +102,7 @@ model Links {
   updatedAt DateTime @updatedAt
 
   password String?
-  hits      Int     @default(0)
+  hits     Int     @default(0)
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull, onUpdate: Cascade)
@@ -120,11 +120,12 @@ model Links {
 model URL {
   id        String   @id @default(uuid())
   url       String   @unique
+  title     String?
   protocol  String?  @default("https")
   pathname  String?
   search    String?
   hash      String?
-  hits       Int      @default(0)
+  hits      Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
