@@ -88,6 +88,7 @@ export default class LinksService {
     return this.prismaService.links.create({
       data: {
         alias: alias,
+        title: pageTitle,
         ...(userId && {
           user: {
             connect: {
