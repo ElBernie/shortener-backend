@@ -1,0 +1,8 @@
+-- AlterTable
+ALTER TABLE "Domain" ADD COLUMN     "hits" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "Links" ADD COLUMN     "hits" INTEGER NOT NULL DEFAULT 0;
+
+-- AlterTable
+ALTER TABLE "URL" ADD COLUMN     "hits" INTEGER NOT NULL DEFAULT 0;
