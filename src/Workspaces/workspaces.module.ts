@@ -7,8 +7,10 @@ import { PrismaService } from 'src/Prisma/prisma.service';
 import WorkspacesService from './services/workspaces.service';
 import WorkspacesMembersController from './workspacesMembers.controller';
 import WorkspacesRolesService from './services/workspacesRoles.service';
-import WorkspacesMembersServices from './services/workspacesMembers.service';
+import WorkspacesMembersService from './services/workspacesMembers.service';
 import WorkspacesRolesController from './workspacesRoles.controller';
+import WorkspacesStatsController from './workspacesStats.controller';
+import WorkspacesStatsService from './services/workspaces-stats.service';
 
 @Module({
   imports: [LinksModule, UsersModule],
@@ -16,12 +18,14 @@ import WorkspacesRolesController from './workspacesRoles.controller';
     WorkspacesController,
     WorkspacesRolesController,
     WorkspacesMembersController,
+    WorkspacesStatsController,
   ],
   providers: [
     PrismaService,
     WorkspacesService,
     WorkspacesRolesService,
-    WorkspacesMembersServices,
+    WorkspacesMembersService,
+    WorkspacesStatsService,
   ],
   exports: [WorkspacesService],
 })
