@@ -8,7 +8,7 @@ import {
 import { PrismaService } from 'src/Prisma/prisma.service';
 
 @Injectable()
-export default class WorkspacesMembersServices {
+export default class WorkspacesMembersService {
   constructor(private prisma: PrismaService) {}
 
   async getWorkspaceMembers(workspaceId: string) {
