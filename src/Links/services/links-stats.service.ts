@@ -7,7 +7,8 @@ import { PrismaService } from 'src/Prisma/prisma.service';
 
 interface GetLinkStatsOptions {
   includes?: {
-    [key: string]: boolean;
+    visits: boolean;
+    langs: boolean;
   };
 }
 
@@ -15,6 +16,7 @@ interface GetLinkStatsOptions {
 export default class LinksStatsService {
   private influxQuery: QueryApi;
   private influxWrite: WriteApi;
+
   constructor(
     private prisma: PrismaService,
     private influx: InfluxClientService,
@@ -118,7 +120,6 @@ export default class LinksStatsService {
     for await (const { values, tableMeta } of this.influxQuery.iterateRows(
       query,
     )) {
-      // lang, count
       const data = tableMeta.toObject(values);
       langs.push({ lang: data.lang, count: data.count });
     }
