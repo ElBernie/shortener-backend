@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InfluxClientService } from '@sunbzh/nest-influx';
-import { Point, WriteApi, QueryApi } from '@influxdata/influxdb-client';
+import { Point, WriteApi, QueryApi, flux } from '@influxdata/influxdb-client';
 import LinksService from './links.service';
 import RegisterHitDTO from '../DTO/stats-register-hit.dto';
 import { PrismaService } from 'src/Prisma/prisma.service';
@@ -81,16 +81,16 @@ export default class LinksStatsService {
   }
 
   async getLinkVisits(linkId: string): Promise<number> {
-    const query = `
-    from(bucket: "links")
-        |> range(start: 1, stop: ${Date.now()})
-        |> filter(fn: (r) => r["_measurement"] == "linkHit")
-        |> filter(fn: (r) => r["linkId"] == "${linkId}")
-        |> pivot(columnKey: ["_field"], rowKey:[ "_time"], valueColumn: "_value")
-        |> group()
-        |> set(key: "count", value:"0")
-        |> count(column: "count")
-        |> yield(name:"count")
+    const query = flux`
+      from(bucket: "links")
+          |> range(start: 1, stop: ${Date.now()})
+          |> filter(fn: (r) => r["_measurement"] == "linkHit")
+          |> filter(fn: (r) => r["linkId"] == "${linkId}")
+          |> pivot(columnKey: ["_field"], rowKey:[ "_time"], valueColumn: "_value")
+          |> group()
+          |> set(key: "count", value:"0")
+          |> count(column: "count")
+          |> yield(name:"count")
     `;
 
     for await (const { values, tableMeta } of this.influxQuery.iterateRows(
@@ -102,18 +102,18 @@ export default class LinksStatsService {
   }
 
   async getLangs(linkId: string): Promise<any> {
-    const query = `
+    const query = flux`
         from(bucket: "links")
-        |> range(start:1, stop: ${Date.now()})
-        |> filter(fn: (r) => r["_measurement"] == "linkHit")
-        |> filter(fn:(r) => r["linkId"] == "${linkId}")
-        |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
-        |> group(columns: ["lang"])
-        |> filter(fn:(r) => r["lang"] != "")
-        |> set(key: "count", value:"0")
-        |> count(column:"count")
-        |> group()
-        |> sort(columns: ["count"], desc:true)
+          |> range(start:1, stop: ${Date.now()})
+          |> filter(fn: (r) => r["_measurement"] == "linkHit")
+          |> filter(fn:(r) => r["linkId"] == "${linkId}")
+          |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
+          |> group(columns: ["lang"])
+          |> filter(fn:(r) => r["lang"] != "")
+          |> set(key: "count", value:"0")
+          |> count(column:"count")
+          |> group()
+          |> sort(columns: ["count"], desc:true)
     `;
 
     const langs = [];
