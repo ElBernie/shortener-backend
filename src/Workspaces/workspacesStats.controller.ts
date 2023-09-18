@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import WorkspacesStatsService from './services/workspaces-stats.service';
 import WorkspaceStatsGetVisitsDTO from './DTO/stats/get-visits.dto';
 
