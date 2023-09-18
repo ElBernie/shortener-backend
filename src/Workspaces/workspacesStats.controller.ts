@@ -21,4 +21,12 @@ export default class WorkspacesStatsController {
   ) {
     return this.workspacesStatsService.getWorkspaceVisits(workspaceId, query);
   }
+
+  @Get('/langs')
+  async getWorkspaceLinksVisitsLangs(
+    @Param('workspaceId') workspaceId: string,
+    @Query() query: WorkspaceStatsGetVisitsDTO,
+  ) {
+    return this.workspacesStatsService.getWorkspaceLangs(workspaceId, query);
+  }
 }
