@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InfluxClientService } from '@sunbzh/nest-influx';
 import { PrismaService } from 'src/Prisma/prisma.service';
-import { QueryApi, flux } from '@influxdata/influxdb-client';
+import { QueryApi, flux, fluxDuration } from '@influxdata/influxdb-client';
 
 interface GetWorkspaceStatsOptions {
   includes?: {
@@ -56,14 +56,16 @@ export default class WorkspacesStatsService {
   ) {
     const query = flux`
       from(bucket: "links")
-        |> range(start:${params.start ?? '-7d'}, stop:${params.end ?? 'now()'})
+        |> range(start:${fluxDuration(params.start) ?? '-7d'}, stop:${
+      fluxDuration(params.end) ?? 'now()'
+    })
         |> filter(fn: (r) => r["_measurement"] == "linkHit")
         |> filter(fn: (r) => r["workspaceId"] == "${workspaceId}")
         |> pivot(columnKey: ["_field"], rowKey: ["_time"], valueColumn: "_value")
         |> set(key: "_value", value:"0")
         |> group()
         |> aggregateWindow(every: ${
-          params.interval ?? '1d'
+          fluxDuration(params.interval) ?? '1d'
         }, fn:count, createEmpty: true)
     `;
 
@@ -83,8 +85,8 @@ export default class WorkspacesStatsService {
   ) {
     const query = flux`
         from(bucket: "links")
-          |> range(start:${params.start ?? '-7d'}, stop: ${
-      params.end ?? 'now()'
+          |> range(start:${fluxDuration(params.start) ?? '-7d'}, stop: ${
+      fluxDuration(params.end) ?? 'now()'
     })
           |> filter(fn: (r) => r["_measurement"] == "linkHit" and r["workspaceId"] == "${workspaceId}")
           |> pivot(rowKey: ["_time"], columnKey: ["_field"], valueColumn: "_value")
