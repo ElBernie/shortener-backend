@@ -21,14 +21,20 @@ import LinkUpdateDTO from './DTO/link-update.dto';
 import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 import RegisterHitDTO from './DTO/stats-register-hit.dto';
 import LinksStatsService from './services/links-stats.service';
+import { InfluxClientService } from '@sunbzh/nest-influx';
+import { DeleteAPI } from '@influxdata/influxdb-client-apis';
 
 @Controller('links')
 export default class LinksController {
+  private influxDeleteAPI: DeleteAPI;
   constructor(
     private linksService: LinksService,
     private workspacesService: WorkspacesService,
     private linksStatsService: LinksStatsService,
-  ) {}
+    private influx: InfluxClientService,
+  ) {
+    this.influxDeleteAPI = new DeleteAPI(influx.influxDB);
+  }
 
   @Get('/:linkdId')
   getLinkById(@Param('linkId') linkId: string) {
@@ -100,7 +106,39 @@ export default class LinksController {
     @Param('linkId') linkId: string,
   ) {
     const link = await this.linksService.getLinkById(linkId);
-    if (link.userId != req.user.userId) throw new ForbiddenException();
+    if (
+      !this.workspacesService.userHasPermission(
+        req.user.userId,
+        link.workspaceId,
+        'linksDelete',
+      ) &&
+      !this.workspacesService.userHasPermission(
+        req.user.userId,
+        link.workspaceId,
+        'linksDeleteOwn',
+      )
+    )
+      throw new ForbiddenException();
+
+    if (
+      link.userId != req.user.userId &&
+      !this.workspacesService.userHasPermission(
+        req.user.userId,
+        link.workspaceId,
+        'linksDelete',
+      )
+    )
+      throw new ForbiddenException();
+
+    await this.influxDeleteAPI.postDelete({
+      bucket: 'links',
+      org: 'sunbzh',
+      body: {
+        start: new Date(1970, 1, 1).toISOString(),
+        stop: new Date(Date.now()).toISOString(),
+        predicate: `linkId="${link.id}"`,
+      },
+    });
 
     return this.linksService.deleteUrl(linkId);
   }
@@ -111,6 +149,7 @@ export default class LinksController {
       includes: { langs: true, visits: true },
     });
   }
+
   @Post('/:linkId/stats')
   async registerHit(
     @Param('linkId') linkId: string,
