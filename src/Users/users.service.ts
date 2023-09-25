@@ -29,6 +29,17 @@ export default class UsersService {
     return user;
   }
 
+  deleteUser = async (userId: string) => {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+    });
+    if (!user) throw new NotFoundException();
+
+    return this.prismaService.user.delete({ where: { id: userId } });
+  };
+  
   async getUserWorkspaces(userId: string) {
     const ownedWorkspaces = await this.prismaService.workspace.findMany({
       where: {
