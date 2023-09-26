@@ -47,7 +47,7 @@ export default class UsersService {
       throw new ConflictException('USER_OWNS_WORKSPACES');
 
     if (user.OwnedWorkspaces.length > 0) {
-      Promise.all(
+      await Promise.all(
         user.OwnedWorkspaces.map(async (workspace: Workspace) => {
           await this.workspacesService.deleteWorkspace(workspace.id, user.id);
         }),
