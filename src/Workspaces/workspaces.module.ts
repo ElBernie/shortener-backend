@@ -9,23 +9,21 @@ import WorkspacesMembersController from './workspacesMembers.controller';
 import WorkspacesRolesService from './services/workspacesRoles.service';
 import WorkspacesMembersService from './services/workspacesMembers.service';
 import WorkspacesRolesController from './workspacesRoles.controller';
-import WorkspacesStatsController from './workspacesStats.controller';
-import WorkspacesStatsService from './services/workspaces-stats.service';
+
+import WorkspacesStatsModule from 'src/WorkspacesStats/workspacesStats.module';
 
 @Module({
-  imports: [LinksModule, UsersModule],
+  imports: [LinksModule, UsersModule, WorkspacesStatsModule],
   controllers: [
     WorkspacesController,
     WorkspacesRolesController,
     WorkspacesMembersController,
-    WorkspacesStatsController,
   ],
   providers: [
     PrismaService,
     WorkspacesService,
     WorkspacesRolesService,
     WorkspacesMembersService,
-    WorkspacesStatsService,
   ],
   exports: [WorkspacesService],
 })
