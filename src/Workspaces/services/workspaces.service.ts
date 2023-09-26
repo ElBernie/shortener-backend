@@ -5,11 +5,15 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from 'src/Prisma/prisma.service';
+import WorkspacesStatsService from 'src/WorkspacesStats/workspacesStats.service';
 import { WORKSPACE_PERMISSIONS } from 'src/types';
 
 @Injectable()
 export default class WorkspacesService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private workspacesStatsService: WorkspacesStatsService,
+  ) {}
 
   getWorkspace(workspaceId: string) {
     return this.prismaService.workspace.findUnique({
@@ -44,6 +48,8 @@ export default class WorkspacesService {
     if (!workspace) throw new NotFoundException();
     if (workspace.ownerId != userId) throw new ForbiddenException();
     if (workspace.deletable == false) throw new ForbiddenException();
+
+    await this.workspacesStatsService.deleteWorkspaceStats(workspaceId);
 
     return this.prismaService.workspace.delete({
       where: { id: workspaceId },
