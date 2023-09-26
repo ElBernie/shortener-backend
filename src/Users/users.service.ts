@@ -49,7 +49,7 @@ export default class UsersService {
     if (user.OwnedWorkspaces.length > 0) {
       await Promise.all(
         user.OwnedWorkspaces.map(async (workspace: Workspace) => {
-          await this.workspacesService.deleteWorkspace(workspace.id, user.id);
+          await this.workspacesService.deleteWorkspace(workspace.id);
         }),
       );
     }

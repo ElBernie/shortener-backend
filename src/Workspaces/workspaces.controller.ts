@@ -42,12 +42,16 @@ export default class WorkspacesController {
 
   @Permission('owner')
   @Delete('/:workspaceId')
-  deleteWorkspace(
+  async deleteWorkspace(
     @Req() req: Request,
     @Param('workspaceId') workspaceId: string,
   ) {
     if (!req.user.userId) throw new UnauthorizedException();
-    return this.workspacesService.deleteWorkspace(workspaceId, req.user.userId);
+    const workspace = await this.workspacesService.getWorkspace(workspaceId);
+    if (!workspace) throw new NotFoundException('WORKSPACE_NOT_FOUND');
+    if (workspace.ownerId != req.user.userId) throw new ForbiddenException();
+
+    return this.workspacesService.deleteWorkspace(workspaceId);
   }
 
   @Permission('member')

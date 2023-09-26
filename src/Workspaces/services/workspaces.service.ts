@@ -38,7 +38,7 @@ export default class WorkspacesService {
     });
   }
 
-  async deleteWorkspace(workspaceId: string, userId: string) {
+  async deleteWorkspace(workspaceId: string) {
     const workspace = await this.prismaService.workspace.findUnique({
       where: {
         id: workspaceId,
@@ -46,9 +46,7 @@ export default class WorkspacesService {
     });
 
     if (!workspace) throw new NotFoundException();
-    if (workspace.ownerId != userId) throw new ForbiddenException();
     if (workspace.deletable == false) throw new ForbiddenException();
-
     await this.workspacesStatsService.deleteWorkspaceStats(workspaceId);
 
     return this.prismaService.workspace.delete({
