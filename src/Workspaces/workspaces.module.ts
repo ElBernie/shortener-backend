@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import LinksModule from 'src/Links/links.module';
 import UsersModule from 'src/Users/users.module';
 
@@ -13,7 +13,7 @@ import WorkspacesRolesController from './workspacesRoles.controller';
 import WorkspacesStatsModule from 'src/WorkspacesStats/workspacesStats.module';
 
 @Module({
-  imports: [LinksModule, UsersModule, WorkspacesStatsModule],
+  imports: [LinksModule, forwardRef(() => UsersModule), WorkspacesStatsModule],
   controllers: [
     WorkspacesController,
     WorkspacesRolesController,
