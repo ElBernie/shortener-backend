@@ -57,8 +57,8 @@ export default class WorkspacesStatsService {
     workspaceId: string,
     params?: { start?: Date; end?: Date },
   ) {
-    const start = params.start ? new Date(params.start) : new Date(1970, 1, 1);
-    const end = params.end ? new Date(params.end) : new Date(Date.now());
+    const start = params?.start ? new Date(params.start) : new Date(1970, 1, 1);
+    const end = params?.end ? new Date(params.end) : new Date(Date.now());
     await this.influxDeleteAPI.postDelete({
       bucket: 'links',
       org: 'sunbzh',
