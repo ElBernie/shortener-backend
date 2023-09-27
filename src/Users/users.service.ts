@@ -5,15 +5,19 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User } from '@prisma/client';
+import { User, Workspace } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
+import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 
 interface GetUserOptions {
   remove?: Array<keyof Omit<User, 'id' | 'password'>>;
 }
 @Injectable()
 export default class UsersService {
-  constructor(private prismaService: PrismaService) {}
+  constructor(
+    private prismaService: PrismaService,
+    private workspacesService: WorkspacesService,
+  ) {}
 
   async getUser(userId: string, options?: GetUserOptions) {
     const user = await this.prismaService.user.findUnique({
@@ -28,6 +32,30 @@ export default class UsersService {
 
     return user;
   }
+
+  deleteUser = async (userId: string, forceWorkspacesDeletion?: boolean) => {
+    const user = await this.prismaService.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        OwnedWorkspaces: true,
+      },
+    });
+    if (!user) throw new NotFoundException();
+    if (user.OwnedWorkspaces.length > 0 && !forceWorkspacesDeletion)
+      throw new ConflictException('USER_OWNS_WORKSPACES');
+
+    if (user.OwnedWorkspaces.length > 0) {
+      await Promise.all(
+        user.OwnedWorkspaces.map(async (workspace: Workspace) => {
+          await this.workspacesService.deleteWorkspace(workspace.id);
+        }),
+      );
+    }
+
+    return this.prismaService.user.delete({ where: { id: userId } });
+  };
 
   async getUserWorkspaces(userId: string) {
     const ownedWorkspaces = await this.prismaService.workspace.findMany({

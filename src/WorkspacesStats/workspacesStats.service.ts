@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InfluxClientService } from '@sunbzh/nest-influx';
 import { PrismaService } from 'src/Prisma/prisma.service';
 import { QueryApi, flux, fluxDuration } from '@influxdata/influxdb-client';
+import { DeleteAPI } from '@influxdata/influxdb-client-apis';
 
 interface GetWorkspaceStatsOptions {
   includes?: {
@@ -12,11 +13,13 @@ interface GetWorkspaceStatsOptions {
 @Injectable()
 export default class WorkspacesStatsService {
   private influxQuery: QueryApi;
+  private influxDeleteAPI: DeleteAPI;
   constructor(
     private prisma: PrismaService,
     private influx: InfluxClientService,
   ) {
     this.influxQuery = this.influx.getQueryApi('sunbzh');
+    this.influxDeleteAPI = new DeleteAPI(this.influx.influxDB);
   }
 
   async getWorkspaceStats(
@@ -48,6 +51,23 @@ export default class WorkspacesStatsService {
       const o = tableMeta.toObject(values);
       return o.count;
     }
+  }
+
+  async deleteWorkspaceStats(
+    workspaceId: string,
+    params?: { start?: Date; end?: Date },
+  ) {
+    const start = params?.start ? new Date(params.start) : new Date(1970, 1, 1);
+    const end = params?.end ? new Date(params.end) : new Date(Date.now());
+    await this.influxDeleteAPI.postDelete({
+      bucket: 'links',
+      org: 'sunbzh',
+      body: {
+        start: start.toISOString(),
+        stop: end.toISOString(),
+        predicate: `workspaceId="${workspaceId}"`,
+      },
+    });
   }
 
   async getWorkspaceVisits(

@@ -1,6 +1,6 @@
 import { Controller, Get, Param, Query } from '@nestjs/common';
-import WorkspacesStatsService from './services/workspaces-stats.service';
-import WorkspaceStatsGetVisitsDTO from './DTO/stats/get-visits.dto';
+import WorkspacesStatsService from 'src/WorkspacesStats/workspacesStats.service';
+import WorkspaceStatsGetVisitsDTO from './DTO/get-visits.dto';
 
 @Controller('/workspaces/:workspaceId/stats')
 export default class WorkspacesStatsController {

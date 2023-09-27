@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   ForbiddenException,
   Get,
   Param,
@@ -47,6 +48,17 @@ export default class UsersController {
     const { userId } = request.user;
     if (requestedUserId != userId) throw new ForbiddenException();
     return this.usersService.getUserInvites(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('/:userId')
+  async deleteuser(
+    @Req() request: Request,
+    @Param('userId') requestedUserId: string,
+  ) {
+    const { userId } = request.user;
+    if (requestedUserId != userId) throw new ForbiddenException();
+    return this.usersService.deleteUser(requestedUserId);
   }
 
   @UseGuards(JwtAuthGuard)
