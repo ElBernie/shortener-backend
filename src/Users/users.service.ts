@@ -5,7 +5,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { User, Workspace } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PrismaService } from 'src/Prisma/prisma.service';
 import WorkspacesService from 'src/Workspaces/services/workspaces.service';
 
