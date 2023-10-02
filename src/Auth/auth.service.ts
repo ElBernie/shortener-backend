@@ -11,6 +11,7 @@ import * as bcrypt from 'bcrypt';
 import LoginDTO from './DTO/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { MailerService } from '@nestjs-modules/mailer';
+import { Errors } from 'src/types';
 
 @Injectable()
 export default class AuthService {
@@ -72,7 +73,7 @@ export default class AuthService {
       },
     });
 
-    if (!user) throw new NotFoundException('USER_NOT_FOUND');
+    if (!user) throw new NotFoundException(Errors.NotFound);
     if (!bcrypt.compareSync(userLoginData.password, user.password))
       throw new UnauthorizedException();
 

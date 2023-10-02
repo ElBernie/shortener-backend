@@ -18,7 +18,7 @@ import WorkspacesMembersServices from './services/workspacesMembers.service';
 import InviteCreateDTO from './DTO/invite-create.dto';
 import JwtAuthGuard from 'src/Auth/guards/JWT.guard';
 import Permission from 'src/Auth/decorators/permission.decorator';
-import { Request } from 'src/types';
+import { Errors, Request } from 'src/types';
 import UsersService from 'src/Users/users.service';
 import { MailerService } from '@nestjs-modules/mailer';
 
@@ -64,9 +64,22 @@ export default class WorkspacesMembersController {
     );
   }
 
-  @Permission('workspaceMembersRemove')
+  @UseGuards(JwtAuthGuard)
   @Delete('/:workspaceId/members/:userId')
-  removeMember(@Param() params: { workspaceId: string; userId: string }) {
+  removeMember(
+    @Param() params: { workspaceId: string; userId: string },
+    @Req() request: Request,
+  ) {
+    if (
+      params.userId != request.user.userId &&
+      !this.worksspacesService.userHasPermission(
+        request.user.userId,
+        params.workspaceId,
+        'workspaceMembersRemove',
+      )
+    )
+      throw new ForbiddenException(Errors.InsufficientPermissions);
+
     return this.workspacesMembersService.deleteWorkspaceMember(
       params.workspaceId,
       params.userId,
