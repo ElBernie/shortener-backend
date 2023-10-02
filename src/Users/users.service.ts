@@ -43,16 +43,8 @@ export default class UsersService {
       },
     });
     if (!user) throw new NotFoundException();
-    if (user.OwnedWorkspaces.length > 0 && !forceWorkspacesDeletion)
+    if (user.OwnedWorkspaces.length > 1 && !forceWorkspacesDeletion)
       throw new ConflictException('USER_OWNS_WORKSPACES');
-
-    if (user.OwnedWorkspaces.length > 0) {
-      await Promise.all(
-        user.OwnedWorkspaces.map(async (workspace: Workspace) => {
-          await this.workspacesService.deleteWorkspace(workspace.id);
-        }),
-      );
-    }
 
     return this.prismaService.user.delete({ where: { id: userId } });
   };
