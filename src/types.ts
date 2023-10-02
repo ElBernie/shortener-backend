@@ -36,3 +36,8 @@ export enum WORKSPACE_PERMISSIONS {
 export type WorkspacesRolePermissions = Partial<
   Record<WORKSPACE_PERMISSIONS, boolean>
 >;
+
+export enum Errors {
+  InsufficientPermissions = 'INSUFFICIENT_PERMISSIONS',
+  NotFound = 'NOT_FOUND',
+}
